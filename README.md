@@ -38,7 +38,7 @@ import timm
 assert timm.__version__ == "0.3.2"
 
 # now load it with torchhub
-model = torch.hub.load('facebookresearch/deit', 'deit_base_patch16_224', pretrained=True)
+model = torch.hub.load('facebookresearch/deit:main', 'deit_base_patch16_224', pretrained=True)
 ```
 
 # Usage
