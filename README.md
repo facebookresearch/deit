@@ -12,7 +12,7 @@ For details see [Training data-efficient image transformers & distillation throu
 @article{touvron2020deit,
   title={Training data-efficient image transformers & distillation through attention},
   author={Hugo Touvron and Matthieu Cord and Matthijs Douze and Francisco Massa and Alexandre Sablayrolles and Herv\'e J\'egou},
-  journal={arXiv preprint arXiv:1912.11370},
+  journal={arXiv preprint arXiv:2003.08237},
   year={2020}
 }
 ```
