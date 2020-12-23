@@ -4,7 +4,7 @@ This repository contains PyTorch evaluation code, training code and pretrained m
 
 They obtain competitive tradeoffs in terms of speed / precision:
 
-![DeiT](.github/deit.png)
+![DeiT](.github/deit.png =800x)
 
 For details see [Training data-efficient image transformers & distillation through attention](link/to/paper) by Hugo Touvron, Matthieu Cord, Matthijs Douze, Francisco Massa, Alexandre Sablayrolles and Hervé Jégou.
 
