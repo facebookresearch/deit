@@ -31,7 +31,9 @@ We provide baseline DeiT models pretrained on ImageNet 2012.
 
 
 The models are also available via torch hub.
-Before using it, make sure you have the pytorch-image-models package [`timm==0.3.2`](https://github.com/rwightman/pytorch-image-models) by [Ross Wightman](https://github.com/rwightman) installed. To load DeiT-base with pretrained weights on ImageNet simply do:
+Before using it, make sure you have the pytorch-image-models package [`timm==0.3.2`](https://github.com/rwightman/pytorch-image-models) by [Ross Wightman](https://github.com/rwightman) installed. Note that our work relies of the augmentations proposed in this library. In particular, the RandAugment and RandErasing that we invoke are the improved version from the Timm library. 
+
+To load DeiT-base with pretrained weights on ImageNet simply do:
 
 ```python
 import torch
@@ -93,6 +95,8 @@ giving
 ```
 * Acc@1 79.854 Acc@5 94.968 loss 0.881
 ```
+
+Note that Deit-small is *not* the same model as in Timm. 
 
 And for Deit-tiny:
 ```
