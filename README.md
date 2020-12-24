@@ -31,7 +31,7 @@ We provide baseline DeiT models pretrained on ImageNet 2012.
 
 
 The models are also available via torch hub.
-Before using it, make sure you have the pytorch-image-models [`timm==0.3.2`](https://github.com/rwightman/pytorch-image-models) by [Ross Wightman](https://github.com/rwightman) installed. To load DeiT-base with pretrained weights on ImageNet simply do:
+Before using it, make sure you have the pytorch-image-models package [`timm==0.3.2`](https://github.com/rwightman/pytorch-image-models) by [Ross Wightman](https://github.com/rwightman) installed. To load DeiT-base with pretrained weights on ImageNet simply do:
 
 ```python
 import torch
