@@ -6,7 +6,9 @@ They obtain competitive tradeoffs in terms of speed / precision:
 
 ![DeiT](.github/deit.png)
 
-For details see [Training data-efficient image transformers & distillation through attention](https://arxiv.org/abs/2012.12877) by Hugo Touvron, Matthieu Cord, Matthijs Douze, Francisco Massa, Alexandre Sablayrolles and Hervé Jégou.
+For details see [Training data-efficient image transformers & distillation through attention](https://arxiv.org/abs/2012.12877) by Hugo Touvron, Matthieu Cord, Matthijs Douze, Francisco Massa, Alexandre Sablayrolles and Hervé Jégou. 
+
+If you use this code for a paper please cite:
 
 ```
 @article{touvron2020deit,
