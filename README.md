@@ -6,13 +6,13 @@ They obtain competitive tradeoffs in terms of speed / precision:
 
 ![DeiT](.github/deit.png)
 
-For details see [Training data-efficient image transformers & distillation through attention](link/to/paper) by Hugo Touvron, Matthieu Cord, Matthijs Douze, Francisco Massa, Alexandre Sablayrolles and Hervé Jégou.
+For details see [Training data-efficient image transformers & distillation through attention](https://arxiv.org/abs/2012.12877) by Hugo Touvron, Matthieu Cord, Matthijs Douze, Francisco Massa, Alexandre Sablayrolles and Hervé Jégou.
 
 ```
 @article{touvron2020deit,
   title={Training data-efficient image transformers & distillation through attention},
   author={Hugo Touvron and Matthieu Cord and Matthijs Douze and Francisco Massa and Alexandre Sablayrolles and Herv\'e J\'egou},
-  journal={arXiv preprint arXiv:2003.08237},
+  journal={arXiv preprint arXiv:2012.12877},
   year={2020}
 }
 ```
