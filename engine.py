@@ -8,7 +8,6 @@
 Train and eval functions used in main.py
 """
 import math
-import os
 import sys
 from typing import Iterable, Optional
 

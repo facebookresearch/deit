@@ -4,11 +4,9 @@
 # This source code is licensed under the CC-by-NC license found in the
 # LICENSE file in the root directory of this source tree.
 #
-import math
 import os
 import json
 
-import torch
 from torchvision import datasets, transforms
 from torchvision.datasets.folder import ImageFolder, default_loader
 
