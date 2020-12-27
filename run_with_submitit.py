@@ -62,7 +62,6 @@ class Trainer(object):
     def checkpoint(self):
         import os
         import submitit
-        from pathlib import Path
 
         self.args.dist_url = get_init_file().as_uri()
         checkpoint_file = os.path.join(self.args.output_dir, "checkpoint.pth")

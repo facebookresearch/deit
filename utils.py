@@ -11,16 +11,12 @@ Mostly copy-paste from torchvision references.
 """
 import io
 import os
-import subprocess
 import time
 from collections import defaultdict, deque
 import datetime
-import pickle
-from typing import Optional, List
 
 import torch
 import torch.distributed as dist
-from torch import Tensor
 
 
 class SmoothedValue(object):
