@@ -34,9 +34,9 @@ class DistillationLoss(torch.nn.Module):
             # taken from https://github.com/peterliht/knowledge-distillation-pytorch/blob/master/model/net.py#L100
             # with slight modifications
             distillation_loss = F.kl_div(
-                F.log_softmax(outputs / T, dim=1), F.softmax(teacher_outputs / T, dim=1)) * (T * T)
+                F.log_softmax(outputs_kd / T, dim=1), F.softmax(teacher_outputs / T, dim=1)) * (T * T)
         elif self.distillation_type == 'hard':
-            distillation_loss = F.cross_entropy(outputs, teacher_outputs.argmax(dim=1))
+            distillation_loss = F.cross_entropy(outputs_kd, teacher_outputs.argmax(dim=1))
 
         loss = base_loss * (1 - self.alpha) + distillation_loss * self.alpha
         return loss
