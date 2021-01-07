@@ -16,10 +16,11 @@ import torch
 from timm.data import Mixup
 from timm.utils import accuracy, ModelEma
 
+from losses import DistillationLoss
 import utils
 
 
-def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
+def train_one_epoch(model: torch.nn.Module, criterion: DistillationLoss,
                     data_loader: Iterable, optimizer: torch.optim.Optimizer,
                     device: torch.device, epoch: int, loss_scaler, max_norm: float = 0,
                     model_ema: Optional[ModelEma] = None, mixup_fn: Optional[Mixup] = None):
@@ -40,7 +41,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
 
         with torch.cuda.amp.autocast():
             outputs = model(samples)
-            loss = criterion(outputs, targets)
+            loss = criterion(samples, outputs, targets)
 
         loss_value = loss.item()
 
@@ -84,6 +85,10 @@ def evaluate(data_loader, model, device):
         # compute output
         with torch.cuda.amp.autocast():
             output = model(images)
+            if not isinstance(output, torch.Tensor):
+                # assume we have a tuple with [cls_token, dist_token]
+                # so take the first output
+                output = output[0]
             loss = criterion(output, target)
 
         acc1, acc5 = accuracy(output, target, topk=(1, 5))
