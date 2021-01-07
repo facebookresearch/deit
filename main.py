@@ -42,8 +42,6 @@ def get_args_parser():
                         help='Dropout rate (default: 0.)')
     parser.add_argument('--drop-path', type=float, default=0.1, metavar='PCT',
                         help='Drop path rate (default: 0.1)')
-    parser.add_argument('--drop-block', type=float, default=None, metavar='PCT',
-                        help='Drop block rate (default: None)')
 
     parser.add_argument('--model-ema', action='store_true')
     parser.add_argument('--no-model-ema', action='store_false', dest='model_ema')
@@ -222,7 +220,7 @@ def main(args):
         num_classes=args.nb_classes,
         drop_rate=args.drop,
         drop_path_rate=args.drop_path,
-        drop_block_rate=args.drop_block,
+        drop_block_rate=None,
     )
 
     # TODO: finetuning
