@@ -15,6 +15,7 @@ import json
 from pathlib import Path
 
 from timm.data import Mixup
+from timm.data.distributed_sampler import OrderedDistributedSampler
 from timm.models import create_model
 from timm.loss import LabelSmoothingCrossEntropy, SoftTargetCrossEntropy
 from timm.scheduler import create_scheduler
@@ -190,6 +191,7 @@ def main(args):
             sampler_train = torch.utils.data.DistributedSampler(
                 dataset_train, num_replicas=num_tasks, rank=global_rank, shuffle=True
             )
+        sampler_val = OrderedDistributedSampler(dataset_val, num_replicas=num_tasks, rank=global_rank)
     else:
         sampler_train = torch.utils.data.RandomSampler(dataset_train)
 
@@ -202,7 +204,8 @@ def main(args):
     )
 
     data_loader_val = torch.utils.data.DataLoader(
-        dataset_val, batch_size=int(1.5 * args.batch_size),
+        dataset_val, sampler=sampler_val,
+        batch_size=int(1.5 * args.batch_size),
         shuffle=False, num_workers=args.num_workers,
         pin_memory=args.pin_mem, drop_last=False
     )
