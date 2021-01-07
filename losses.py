@@ -7,7 +7,7 @@ class DistillationLoss(torch.nn.Module):
         super().__init__()
         self.base_criterion = base_criterion
         self.teacher_model = teacher_model
-        self.distillation_type = kd_type
+        self.distillation_type = distillation_type
         self.alpha = alpha
         self.tau = tau
 
