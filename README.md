@@ -135,7 +135,7 @@ python run_with_submitit.py --model deit_base_patch16_224 --data-path /path/to/i
 ```
 
 # License
-This repository is released under the CC-BY-NC 4.0. license as found in the [LICENSE](LICENSE) file.
+This repository is released under the Apache 2.0 license as found in the [LICENSE](LICENSE) file.
 
 # Contributing
 We actively welcome your pull requests! Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](.github/CODE_OF_CONDUCT.md) for more info.
