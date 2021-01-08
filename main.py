@@ -374,7 +374,8 @@ def main(args):
         train_stats = train_one_epoch(
             model, criterion, data_loader_train,
             optimizer, device, epoch, loss_scaler,
-            args.clip_grad, model_ema, mixup_fn
+            args.clip_grad, model_ema, mixup_fn,
+            set_training_mode=args.finetune == ''  # keep in eval mode during finetuning
         )
 
         lr_scheduler.step(epoch)
