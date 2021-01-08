@@ -19,11 +19,11 @@ class DistilledVisionTransformer(VisionTransformer):
         self.dist_token = nn.Parameter(torch.zeros(1, 1, self.embed_dim))
         num_patches = self.patch_embed.num_patches
         self.pos_embed = nn.Parameter(torch.zeros(1, num_patches + 2, self.embed_dim))
-        self.head1 = nn.Linear(self.embed_dim, self.num_classes) if self.num_classes > 0 else nn.Identity()
+        self.head_dist = nn.Linear(self.embed_dim, self.num_classes) if self.num_classes > 0 else nn.Identity()
 
         trunc_normal_(self.dist_token, std=.02)
         trunc_normal_(self.pos_embed, std=.02)
-        self.head1.apply(self._init_weights)
+        self.head_dist.apply(self._init_weights)
 
     def forward_features(self, x):
         # taken from https://github.com/rwightman/pytorch-image-models/blob/master/timm/models/vision_transformer.py
@@ -33,8 +33,7 @@ class DistilledVisionTransformer(VisionTransformer):
 
         cls_tokens = self.cls_token.expand(B, -1, -1)  # stole cls_tokens impl from Phil Wang, thanks
         dist_token = self.dist_token.expand(B, -1, -1)
-        x = torch.cat((cls_tokens, x), dim=1)
-        x = torch.cat((dist_token, x), dim=1)
+        x = torch.cat((cls_tokens, dist_token, x), dim=1)
 
         x = x + self.pos_embed
         x = self.pos_drop(x)
@@ -46,11 +45,11 @@ class DistilledVisionTransformer(VisionTransformer):
         return x[:, 0], x[:, 1]
 
     def forward(self, x):
-        x, x1 = self.forward_features(x)
+        x, x_dist = self.forward_features(x)
         x = self.head(x)
-        x1 = self.head1(x1)
+        x_dist = self.head_dist(x_dist)
         if self.training:
-            return x, x1
+            return x, x_dist
         else:
             return x
 
