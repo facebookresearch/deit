@@ -134,8 +134,6 @@ def get_args_parser():
 
     # * Finetuning params
     parser.add_argument('--finetune', default='', help='finetune from checkpoint')
-    parser.add_argument('--finetune-epochs', default=30,
-                        help='Number of epochs to finetune, keeping the lr schedule using args.epochs')
 
     # Dataset parameters
     parser.add_argument('--data-path', default='/datasets01/imagenet_full_size/061417/', type=str,
@@ -361,9 +359,6 @@ def main(args):
         test_stats = evaluate(data_loader_val, model, device)
         print(f"Accuracy of the network on the {len(dataset_val)} test images: {test_stats['acc1']:.1f}%")
         return
-
-    if args.finetune:
-        args.epochs = args.finetune_epochs
 
     print(f"Start training for {args.epochs} epochs")
     start_time = time.time()
