@@ -254,10 +254,11 @@ def main(args):
             checkpoint = torch.load(args.finetune, map_location='cpu')
 
         checkpoint_model = checkpoint['model']
-        if True:
-            for k in ['head.weight', 'head.bias', 'head_dist.weight', 'head_dist.bias']:
-                if k in checkpoint_model:
-                    del checkpoint_model[k]
+        state_dict = model.state_dict()
+        for k in ['head.weight', 'head.bias', 'head_dist.weight', 'head_dist.bias']:
+            if k in checkpoint_model and checkpoint_model[k].shape != state_dict[k].shape:
+                print(f"Removing key {k} from pretrained checkpoint")
+                del checkpoint_model[k]
 
         # interpolate position embedding
         pos_embed_checkpoint = checkpoint_model['pos_embed']
