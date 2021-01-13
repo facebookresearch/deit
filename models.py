@@ -51,7 +51,8 @@ class DistilledVisionTransformer(VisionTransformer):
         if self.training:
             return x, x_dist
         else:
-            return x
+            # during inference, return the average of both classifier predictions
+            return (x + x_dist) / 2
 
 
 @register_model
