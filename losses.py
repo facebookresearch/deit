@@ -12,7 +12,6 @@ class DistillationLoss(torch.nn.Module):
         self.tau = tau
 
     def forward(self, inputs, outputs, labels):
-        # TODO need to add outputs_noKD (outputs[0] and outputs[1])
         outputs_kd = None
         if not isinstance(outputs, torch.Tensor):
             # assume that the model outputs a tuple of [outputs, outputs_kd]

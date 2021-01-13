@@ -84,10 +84,6 @@ def evaluate(data_loader, model, device):
         # compute output
         with torch.cuda.amp.autocast():
             output = model(images)
-            if not isinstance(output, torch.Tensor):
-                # assume we have a tuple with [cls_token, dist_token]
-                # so take the first output
-                output = output[0]
             loss = criterion(output, target)
 
         acc1, acc5 = accuracy(output, target, topk=(1, 5))
