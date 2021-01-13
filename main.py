@@ -173,6 +173,9 @@ def main(args):
 
     print(args)
 
+    if args.distillation_type != 'none' and args.finetune:
+        raise NotImplementedError("Finetuning with distillation not yet supported")
+
     device = torch.device(args.device)
 
     # fix the seed for reproducibility
