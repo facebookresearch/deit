@@ -107,6 +107,43 @@ which should give
 * Acc@1 72.202 Acc@5 91.124 loss 1.219
 ```
 
+
+### Distillation
+
+```
+python main.py --eval --model deit_base_distilled_patch16_224 --resume checkpoints/deit_base_distilled_patch16_224.pth
+```
+
+```
+* Acc@1 83.060 Acc@5 96.296 loss 0.684
+```
+
+```
+python main.py --eval --model deit_small_distilled_patch16_224 --resume checkpoints/deit_small_distilled_patch16_224.pth
+```
+
+```
+* Acc@1 80.880 Acc@5 95.310 loss 0.752
+```
+
+```
+python main.py --eval --model deit_tiny_distilled_patch16_224 --resume checkpoints/deit_tiny_distilled_patch16_224.pth
+```
+
+```
+* Acc@1 73.408 Acc@5 91.368 loss 1.068
+```
+
+### Finetune
+
+```
+python main.py --resume checkpoints/deit_base_patch16_384-8de9b5d1.pth --model deit_base_patch16_384 --input-size 384 --eval
+```
+
+```
+* Acc@1 82.890 Acc@5 96.222 loss 0.764
+```
+
 ## Training
 To train DeiT-small and Deit-tiny on ImageNet on a single node with 4 gpus for 300 epochs run:
 
