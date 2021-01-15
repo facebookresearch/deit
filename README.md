@@ -28,6 +28,10 @@ We provide baseline DeiT models pretrained on ImageNet 2012.
 | DeiT-tiny | 72.2 | 91.1 | 5M | [model](https://dl.fbaipublicfiles.com/deit/deit_tiny_patch16_224-a1311bcf.pth) |
 | DeiT-small | 79.9 | 95.0 | 22M| [model](https://dl.fbaipublicfiles.com/deit/deit_small_patch16_224-cd65a155.pth) |
 | DeiT-base | 81.8 | 95.6 | 86M | [model](https://dl.fbaipublicfiles.com/deit/deit_base_patch16_224-b5f2ef4d.pth) |
+| DeiT-tiny distilled | 73.4 | 91.4 | 5M | [model](https://dl.fbaipublicfiles.com/deit/deit_tiny_distilled_patch16_224-14f6b9f6.pth) |
+| DeiT-small distilled | 80.9 | 95.3 | 22M| [model](https://dl.fbaipublicfiles.com/deit/deit_small_distilled_patch16_224-5eda0aa2.pth) |
+| DeiT-base distilled | 83.1 | 96.3 | 86M | [model](https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_224-785008a2.pth) |
+| DeiT-base 384 | 82.9 | 96.2 | 86M | [model](https://dl.fbaipublicfiles.com/deit/deit_base_patch16_384-8de9b5d1.pth) |
 
 
 The models are also available via torch hub.
