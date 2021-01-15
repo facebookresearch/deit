@@ -114,29 +114,56 @@ which should give
 
 ### Distillation
 
+Here you'll find the command-lines to reproduce the inference results for the distilled models
+
+<details>
+
+<summary>
+deit_base_distilled_patch16_224
+</summary>
+
 ```
 python main.py --eval --model deit_base_distilled_patch16_224 --resume checkpoints/deit_base_distilled_patch16_224.pth
 ```
-
+giving
 ```
 * Acc@1 83.060 Acc@5 96.296 loss 0.684
 ```
 
+</details>
+
+
+<details>
+
+<summary>
+deit_small_distilled_patch16_224
+</summary>
+
 ```
 python main.py --eval --model deit_small_distilled_patch16_224 --resume checkpoints/deit_small_distilled_patch16_224.pth
 ```
-
+giving
 ```
 * Acc@1 80.880 Acc@5 95.310 loss 0.752
 ```
 
+</details>
+
+<details>
+
+<summary>
+deit_tiny_distilled_patch16_224
+</summary>
+
 ```
 python main.py --eval --model deit_tiny_distilled_patch16_224 --resume checkpoints/deit_tiny_distilled_patch16_224.pth
 ```
-
+giving
 ```
 * Acc@1 73.408 Acc@5 91.368 loss 1.068
 ```
+
+</details>
 
 ### Finetune
 
