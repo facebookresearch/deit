@@ -27,11 +27,11 @@ We provide baseline DeiT models pretrained on ImageNet 2012.
 | --- | --- | --- | --- | --- |
 | DeiT-tiny | 72.2 | 91.1 | 5M | [model](https://dl.fbaipublicfiles.com/deit/deit_tiny_patch16_224-a1311bcf.pth) |
 | DeiT-small | 79.9 | 95.0 | 22M| [model](https://dl.fbaipublicfiles.com/deit/deit_small_patch16_224-cd65a155.pth) |
-| DeiT-base | 81.8 | 95.6 | 86M | [model](https://dl.fbaipublicfiles.com/deit/deit_base_patch16_224-b5f2ef4d.pth) |
-| DeiT-tiny distilled | 73.4 | 91.4 | 5M | [model](https://dl.fbaipublicfiles.com/deit/deit_tiny_distilled_patch16_224-14f6b9f6.pth) |
-| DeiT-small distilled | 80.9 | 95.3 | 22M| [model](https://dl.fbaipublicfiles.com/deit/deit_small_distilled_patch16_224-5eda0aa2.pth) |
-| DeiT-base distilled | 83.1 | 96.3 | 86M | [model](https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_224-785008a2.pth) |
-| DeiT-base 384 | 82.9 | 96.2 | 86M | [model](https://dl.fbaipublicfiles.com/deit/deit_base_patch16_384-8de9b5d1.pth) |
+| DeiT-base | 81.8 | 95.6 | 86M | model](https://dl.fbaipublicfiles.com/deit/deit_base_patch16_224-b5f2ef4d.pth) |
+| DeiT-tiny distilled | 74.5 | 91.9 | 6M | [model](https://dl.fbaipublicfiles.com/deit/deit_tiny_distilled_patch16_224-b40b3cf7.pth) |
+| DeiT-small distilled | 81.2 | 95.4 | 22M| [model](https://dl.fbaipublicfiles.com/deit/deit_small_distilled_patch16_224-649709d9.pth) |
+| DeiT-base distilled | 83.4 | 96.5 | 87M | [model](https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_224-df68dfff.pth) |
+| DeiT-base 384 | 82.9 | 96.2 | 87M | [model](https://dl.fbaipublicfiles.com/deit/deit_base_patch16_384-8de9b5d1.pth) |
 
 
 The models are also available via torch hub.
@@ -120,11 +120,11 @@ deit_base_distilled_patch16_224
 </summary>
 
 ```
-python main.py --eval --model deit_base_distilled_patch16_224 --resume https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_224-785008a2.pth
+python main.py --eval --model deit_base_distilled_patch16_224 --resume https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_224-df68dfff.pth
 ```
 giving
 ```
-* Acc@1 83.060 Acc@5 96.296 loss 0.684
+* Acc@1 83.372 Acc@5 96.482 loss 0.685
 ```
 
 </details>
@@ -137,11 +137,11 @@ deit_small_distilled_patch16_224
 </summary>
 
 ```
-python main.py --eval --model deit_small_distilled_patch16_224 --resume https://dl.fbaipublicfiles.com/deit/deit_small_distilled_patch16_224-5eda0aa2.pth
+python main.py --eval --model deit_small_distilled_patch16_224 --resume https://dl.fbaipublicfiles.com/deit/deit_small_distilled_patch16_224-649709d9.pth
 ```
 giving
 ```
-* Acc@1 80.880 Acc@5 95.310 loss 0.752
+* Acc@1 81.164 Acc@5 95.376 loss 0.752
 ```
 
 </details>
@@ -153,11 +153,11 @@ deit_tiny_distilled_patch16_224
 </summary>
 
 ```
-python main.py --eval --model deit_tiny_distilled_patch16_224 --resume https://dl.fbaipublicfiles.com/deit/deit_tiny_distilled_patch16_224-14f6b9f6.pth
+python main.py --eval --model deit_tiny_distilled_patch16_224 --resume https://dl.fbaipublicfiles.com/deit/deit_tiny_distilled_patch16_224-b40b3cf7.pth
 ```
 giving
 ```
-* Acc@1 73.408 Acc@5 91.368 loss 1.068
+* Acc@1 74.476 Acc@5 91.920 loss 1.021
 ```
 
 </details>

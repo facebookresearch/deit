@@ -111,7 +111,7 @@ def deit_tiny_distilled_patch16_224(pretrained=False, **kwargs):
     model.default_cfg = _cfg()
     if pretrained:
         checkpoint = torch.hub.load_state_dict_from_url(
-            url="https://dl.fbaipublicfiles.com/deit/deit_tiny_distilled_patch16_224-14f6b9f6.pth",
+            url="https://dl.fbaipublicfiles.com/deit/deit_tiny_distilled_patch16_224-b40b3cf7.pth",
             map_location="cpu", check_hash=True
         )
         model.load_state_dict(checkpoint["model"])
@@ -126,7 +126,7 @@ def deit_small_distilled_patch16_224(pretrained=False, **kwargs):
     model.default_cfg = _cfg()
     if pretrained:
         checkpoint = torch.hub.load_state_dict_from_url(
-            url="https://dl.fbaipublicfiles.com/deit/deit_small_distilled_patch16_224-5eda0aa2.pth",
+            url="https://dl.fbaipublicfiles.com/deit/deit_small_distilled_patch16_224-649709d9.pth",
             map_location="cpu", check_hash=True
         )
         model.load_state_dict(checkpoint["model"])
@@ -141,7 +141,7 @@ def deit_base_distilled_patch16_224(pretrained=False, **kwargs):
     model.default_cfg = _cfg()
     if pretrained:
         checkpoint = torch.hub.load_state_dict_from_url(
-            url="https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_224-785008a2.pth",
+            url="https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_224-df68dfff.pth",
             map_location="cpu", check_hash=True
         )
         model.load_state_dict(checkpoint["model"])
