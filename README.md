@@ -114,7 +114,7 @@ which should give
 
 ### Distillation
 
-Here you'll find the command-lines to reproduce the inference results for the distilled models
+Here you'll find the command-lines to reproduce the inference results for the distilled and finetuned models
 
 <details>
 
@@ -123,7 +123,7 @@ deit_base_distilled_patch16_224
 </summary>
 
 ```
-python main.py --eval --model deit_base_distilled_patch16_224 --resume checkpoints/deit_base_distilled_patch16_224.pth
+python main.py --eval --model deit_base_distilled_patch16_224 --resume https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_224-785008a2.pth
 ```
 giving
 ```
@@ -140,7 +140,7 @@ deit_small_distilled_patch16_224
 </summary>
 
 ```
-python main.py --eval --model deit_small_distilled_patch16_224 --resume checkpoints/deit_small_distilled_patch16_224.pth
+python main.py --eval --model deit_small_distilled_patch16_224 --resume https://dl.fbaipublicfiles.com/deit/deit_small_distilled_patch16_224-5eda0aa2.pth
 ```
 giving
 ```
@@ -156,7 +156,7 @@ deit_tiny_distilled_patch16_224
 </summary>
 
 ```
-python main.py --eval --model deit_tiny_distilled_patch16_224 --resume checkpoints/deit_tiny_distilled_patch16_224.pth
+python main.py --eval --model deit_tiny_distilled_patch16_224 --resume https://dl.fbaipublicfiles.com/deit/deit_tiny_distilled_patch16_224-14f6b9f6.pth
 ```
 giving
 ```
@@ -165,15 +165,21 @@ giving
 
 </details>
 
-### Finetune
+<details>
+
+<summary>
+deit_base_patch16_384
+</summary>
 
 ```
-python main.py --resume checkpoints/deit_base_patch16_384-8de9b5d1.pth --model deit_base_patch16_384 --input-size 384 --eval
+python main.py --eval --model deit_base_patch16_384 --input-size 384 --resume https://dl.fbaipublicfiles.com/deit/deit_base_patch16_384-8de9b5d1.pth
 ```
-
+giving
 ```
 * Acc@1 82.890 Acc@5 96.222 loss 0.764
 ```
+
+</details>
 
 ## Training
 To train DeiT-small and Deit-tiny on ImageNet on a single node with 4 gpus for 300 epochs run:
