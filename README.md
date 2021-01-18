@@ -49,6 +49,8 @@ assert timm.__version__ == "0.3.2"
 model = torch.hub.load('facebookresearch/deit:main', 'deit_base_patch16_224', pretrained=True)
 ```
 
+Additionnally, we provide a [Colab notebook](https://colab.research.google.com/github/facebookresearch/deit/blob/colab/notebooks/deit_inference.ipynb) which goes over the steps needed to perform inference with DeiT.
+
 # Usage
 
 First, clone the repository locally:
