@@ -27,7 +27,11 @@ We provide baseline DeiT models pretrained on ImageNet 2012.
 | --- | --- | --- | --- | --- |
 | DeiT-tiny | 72.2 | 91.1 | 5M | [model](https://dl.fbaipublicfiles.com/deit/deit_tiny_patch16_224-a1311bcf.pth) |
 | DeiT-small | 79.9 | 95.0 | 22M| [model](https://dl.fbaipublicfiles.com/deit/deit_small_patch16_224-cd65a155.pth) |
-| DeiT-base | 81.8 | 95.6 | 86M | [model](https://dl.fbaipublicfiles.com/deit/deit_base_patch16_224-b5f2ef4d.pth) |
+| DeiT-base | 81.8 | 95.6 | 86M | model](https://dl.fbaipublicfiles.com/deit/deit_base_patch16_224-b5f2ef4d.pth) |
+| DeiT-tiny distilled | 74.5 | 91.9 | 6M | [model](https://dl.fbaipublicfiles.com/deit/deit_tiny_distilled_patch16_224-b40b3cf7.pth) |
+| DeiT-small distilled | 81.2 | 95.4 | 22M| [model](https://dl.fbaipublicfiles.com/deit/deit_small_distilled_patch16_224-649709d9.pth) |
+| DeiT-base distilled | 83.4 | 96.5 | 87M | [model](https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_224-df68dfff.pth) |
+| DeiT-base 384 | 82.9 | 96.2 | 87M | [model](https://dl.fbaipublicfiles.com/deit/deit_base_patch16_384-8de9b5d1.pth) |
 
 
 The models are also available via torch hub.
@@ -107,6 +111,73 @@ which should give
 * Acc@1 72.202 Acc@5 91.124 loss 1.219
 ```
 
+Here you'll find the command-lines to reproduce the inference results for the distilled and finetuned models
+
+<details>
+
+<summary>
+deit_base_distilled_patch16_224
+</summary>
+
+```
+python main.py --eval --model deit_base_distilled_patch16_224 --resume https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_224-df68dfff.pth
+```
+giving
+```
+* Acc@1 83.372 Acc@5 96.482 loss 0.685
+```
+
+</details>
+
+
+<details>
+
+<summary>
+deit_small_distilled_patch16_224
+</summary>
+
+```
+python main.py --eval --model deit_small_distilled_patch16_224 --resume https://dl.fbaipublicfiles.com/deit/deit_small_distilled_patch16_224-649709d9.pth
+```
+giving
+```
+* Acc@1 81.164 Acc@5 95.376 loss 0.752
+```
+
+</details>
+
+<details>
+
+<summary>
+deit_tiny_distilled_patch16_224
+</summary>
+
+```
+python main.py --eval --model deit_tiny_distilled_patch16_224 --resume https://dl.fbaipublicfiles.com/deit/deit_tiny_distilled_patch16_224-b40b3cf7.pth
+```
+giving
+```
+* Acc@1 74.476 Acc@5 91.920 loss 1.021
+```
+
+</details>
+
+<details>
+
+<summary>
+deit_base_patch16_384
+</summary>
+
+```
+python main.py --eval --model deit_base_patch16_384 --input-size 384 --resume https://dl.fbaipublicfiles.com/deit/deit_base_patch16_384-8de9b5d1.pth
+```
+giving
+```
+* Acc@1 82.890 Acc@5 96.222 loss 0.764
+```
+
+</details>
+
 ## Training
 To train DeiT-small and Deit-tiny on ImageNet on a single node with 4 gpus for 300 epochs run:
 
@@ -120,6 +191,7 @@ DeiT-tiny
 python -m torch.distributed.launch --nproc_per_node=4 --use_env main.py --model deit_tiny_patch16_224 --batch-size 256 --data-path /path/to/imagenet --output_dir /path/to/save
 ```
 
+
 ### Multinode training
 
 Distributed training is available via Slurm and [submitit](https://github.com/facebookincubator/submitit):
@@ -132,6 +204,16 @@ To train DeiT-base model on ImageNet on 2 nodes with 8 gpus each for 300 epochs:
 
 ```
 python run_with_submitit.py --model deit_base_patch16_224 --data-path /path/to/imagenet
+```
+
+To train DeiT-base with hard distillation using a RegNetY-160 as teacher, on 2 nodes with 8 GPUs with 32GB each for 300 epochs (make sure that the model weights for the teacher have been downloaded before to the correct location, to avoid multiple workers writing to the same file):
+```
+python run_with_submitit.py --model deit_base_distilled_patch16_224 --distillation-type hard --teacher-model regnety_160 --teacher-path https://dl.fbaipublicfiles.com/deit/regnety_160-a5fe301d.pth --use_volta32
+```
+
+To finetune a DeiT-base on 384 resolution images for 30 epochs, starting from a DeiT-base trained on 224 resolution images, do (make sure that the weights to the original model have been downloaded before, to avoid multiple workers writing to the same file):
+```
+python run_with_submitit.py --model deit_base_patch16_384 --batch-size 32 --finetune https://dl.fbaipublicfiles.com/deit/deit_base_patch16_224-b5f2ef4d.pth --input-size 384 --use_volta32 --nodes 2 --lr 5e-6 --weight-decay 1e-8 --epochs 30 --min-lr 5e-6
 ```
 
 # License

@@ -9,6 +9,13 @@ from timm.models.registry import register_model
 from timm.models.layers import trunc_normal_
 
 
+__all__ = [
+    'deit_tiny_patch16_224', 'deit_small_patch16_224', 'deit_base_patch16_224',
+    'deit_tiny_distilled_patch16_224', 'deit_small_distilled_patch16_224',
+    'deit_base_distilled_patch16_224', 'deit_base_patch16_384'
+]
+
+
 class DistilledVisionTransformer(VisionTransformer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -104,7 +111,7 @@ def deit_tiny_distilled_patch16_224(pretrained=False, **kwargs):
     model.default_cfg = _cfg()
     if pretrained:
         checkpoint = torch.hub.load_state_dict_from_url(
-            url="",
+            url="https://dl.fbaipublicfiles.com/deit/deit_tiny_distilled_patch16_224-b40b3cf7.pth",
             map_location="cpu", check_hash=True
         )
         model.load_state_dict(checkpoint["model"])
@@ -119,7 +126,7 @@ def deit_small_distilled_patch16_224(pretrained=False, **kwargs):
     model.default_cfg = _cfg()
     if pretrained:
         checkpoint = torch.hub.load_state_dict_from_url(
-            url="",
+            url="https://dl.fbaipublicfiles.com/deit/deit_small_distilled_patch16_224-649709d9.pth",
             map_location="cpu", check_hash=True
         )
         model.load_state_dict(checkpoint["model"])
@@ -134,7 +141,7 @@ def deit_base_distilled_patch16_224(pretrained=False, **kwargs):
     model.default_cfg = _cfg()
     if pretrained:
         checkpoint = torch.hub.load_state_dict_from_url(
-            url="",
+            url="https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_224-df68dfff.pth",
             map_location="cpu", check_hash=True
         )
         model.load_state_dict(checkpoint["model"])
@@ -149,7 +156,7 @@ def deit_base_patch16_384(pretrained=False, **kwargs):
     model.default_cfg = _cfg()
     if pretrained:
         checkpoint = torch.hub.load_state_dict_from_url(
-            url="",
+            url="https://dl.fbaipublicfiles.com/deit/deit_base_patch16_384-8de9b5d1.pth",
             map_location="cpu", check_hash=True
         )
         model.load_state_dict(checkpoint["model"])
