@@ -32,6 +32,7 @@ We provide baseline DeiT models pretrained on ImageNet 2012.
 | DeiT-small distilled | 81.2 | 95.4 | 22M| [model](https://dl.fbaipublicfiles.com/deit/deit_small_distilled_patch16_224-649709d9.pth) |
 | DeiT-base distilled | 83.4 | 96.5 | 87M | [model](https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_224-df68dfff.pth) |
 | DeiT-base 384 | 82.9 | 96.2 | 87M | [model](https://dl.fbaipublicfiles.com/deit/deit_base_patch16_384-8de9b5d1.pth) |
+| DeiT-base distilled 384 (1000 epochs) | 85.2 | 97.2 | 88M | [model](https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_384-d0272ac0.pth) |
 
 
 The models are also available via torch hub.
@@ -174,6 +175,22 @@ python main.py --eval --model deit_base_patch16_384 --input-size 384 --resume ht
 giving
 ```
 * Acc@1 82.890 Acc@5 96.222 loss 0.764
+```
+
+</details>
+
+<details>
+
+<summary>
+deit_base_distilled_patch16_384
+</summary>
+
+```
+python main.py --eval --model deit_base_distilled_patch16_384 --input-size 384 --resume https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_384-d0272ac0.pth
+```
+giving
+```
+* Acc@1 85.224 Acc@5 97.186 loss 0.636
 ```
 
 </details>
