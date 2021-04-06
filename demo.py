@@ -56,4 +56,4 @@ examples = [
     ['cat.jpg']
 ]
 
-gr.Interface(detr, inputs, outputs, title=title, description=description, article=article).launch(debug=True)
+gr.Interface(detr, inputs, outputs, title=title, description=description, article=article, examples=examples).launch()
