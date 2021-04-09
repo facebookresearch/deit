@@ -1,6 +1,6 @@
 # DeiT: Data-efficient Image Transformers
 
-This repository contains PyTorch evaluation code, training code and pretrained models for DeiT (Data-Efficient Image Transformers).
+This repository contains PyTorch evaluation code, training code and pretrained models for DeiT (Data-Efficient Image Transformers) and [CaiT](README_cait.md) (Going deeper with Image Transformers).
 
 They obtain competitive tradeoffs in terms of speed / precision:
 
@@ -33,7 +33,8 @@ We provide baseline DeiT models pretrained on ImageNet 2012.
 | DeiT-base distilled | 83.4 | 96.5 | 87M | [model](https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_224-df68dfff.pth) |
 | DeiT-base 384 | 82.9 | 96.2 | 87M | [model](https://dl.fbaipublicfiles.com/deit/deit_base_patch16_384-8de9b5d1.pth) |
 | DeiT-base distilled 384 (1000 epochs) | 85.2 | 97.2 | 88M | [model](https://dl.fbaipublicfiles.com/deit/deit_base_distilled_patch16_384-d0272ac0.pth) |
-
+|CaiT-S24 distilled 384| 85.1 | 97.3 | 47M | [model](README_cait.md)|
+|CaiT-M48 distilled 448| 86.5 | 97.7 | 356M | [model](README_cait.md)|
 
 The models are also available via torch hub.
 Before using it, make sure you have the pytorch-image-models package [`timm==0.3.2`](https://github.com/rwightman/pytorch-image-models) by [Ross Wightman](https://github.com/rwightman) installed. Note that our work relies of the augmentations proposed in this library. In particular, the RandAugment and RandErasing augmentations that we invoke are the improved versions from the timm library, which already led the timm authors to report up to 79.35% top-1 accuracy with Imagenet training for their best model, i.e., an improvement of about +1.5% compared to prior art. 
