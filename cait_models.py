@@ -327,7 +327,6 @@ def cait_S36(pretrained=False, **kwargs):
     model = cait_models(
         img_size= 384,patch_size=16, embed_dim=384, depth=36, num_heads=8, mlp_ratio=4, qkv_bias=True,
         norm_layer=partial(nn.LayerNorm, eps=1e-6),
-        dpr_constant=True,
         init_scale=1e-6,
         depth_token_only=2,**kwargs)
     
