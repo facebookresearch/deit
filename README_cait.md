@@ -26,7 +26,7 @@ If you use this code for a paper please cite:
 
 We provide baseline CaiT models pretrained on ImageNet1k 2012 only, using the distilled version of our method.
 
-| name | res | acc@1 | FLOPs| #params | url |
+| name | acc@1 | res | FLOPs| #params | url |
 | --- | --- | --- | --- | --- | --- | 
 | S24 | 83.5 | 224 |9.4B| 47M| [model](https://dl.fbaipublicfiles.com/deit/S24_224.pth) |
 | XS24| 84.1 | 384 |  19.3B |27M | [model](https://dl.fbaipublicfiles.com/deit/XS24_384.pth) |
