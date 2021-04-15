@@ -19,6 +19,9 @@ If you use this code for a paper please cite:
 }
 ```
 
+**New**
+* [Gradio App](https://gradio.app/hub/AK391/deit)
+
 # Model Zoo
 
 We provide baseline DeiT models pretrained on ImageNet 2012.
