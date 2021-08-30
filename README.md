@@ -15,13 +15,13 @@ If you use this code for a paper please cite:
 
 ```
 @InProceedings{pmlr-v139-touvron21a,
-  title = 	  {Training data-efficient image transformers &amp; distillation through attention},
+  title =     {Training data-efficient image transformers &amp; distillation through attention},
   author =    {Touvron, Hugo and Cord, Matthieu and Douze, Matthijs and Massa, Francisco and Sablayrolles, Alexandre and Jegou, Herve},
   booktitle = {International Conference on Machine Learning},
-  pages = 	  {10347--10357},
-  year = 	    {2021},
-  volume = 	  {139},
-  month = 	  {July}
+  pages =     {10347--10357},
+  year =      {2021},
+  volume =    {139},
+  month =     {July}
 }
 ```
 
