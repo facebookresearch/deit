@@ -7,7 +7,7 @@ from functools import partial
 
 from timm.models.vision_transformer import Mlp, PatchEmbed , _cfg
 from timm.models.registry import register_model
-from timm.models.layers import trunc_normal_
+from timm.models.layers import trunc_normal_, DropPath
 
 
 __all__ = [
