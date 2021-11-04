@@ -310,7 +310,7 @@ def main(args):
 
     criterion = LabelSmoothingCrossEntropy()
 
-    if args.mixup > 0.:
+    if mixup_active:
         # smoothing is handled with mixup label transform
         criterion = SoftTargetCrossEntropy()
     elif args.smoothing:
