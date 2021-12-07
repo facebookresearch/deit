@@ -10,7 +10,7 @@ from timm.models.layers import trunc_normal_,  DropPath
 
 
 __all__ = [
-    'resMLP_12', 'resMLP_24', 'resMLP_36', 'resmlpB_24'
+    'resmlp_12', 'resmlp_24', 'resmlp_36', 'resmlpB_24'
 ]
 
 class Affine(nn.Module):
