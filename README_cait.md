@@ -1,7 +1,10 @@
 
 # CaiT: Going deeper with Image Transformers 
 
-This repository contains PyTorch evaluation code, training code and pretrained models for DeiT (Data-Efficient Image Transformers) and CaiT (Going deeper with Image Transformers). All models are trained during 400 epochs. 
+This repository contains PyTorch evaluation code, training code and pretrained models for:
+* [DeiT](README.md) (Data-Efficient Image Transformers), ICML 2021
+* CaiT (Going deeper with Image Transformers), ICCV 2021 (Oral)
+* [ResMLP](README_resmlp.md) (ResMLP: Feedforward networks for image classification with data-efficient training) 
 
 CaiT obtain competitive tradeoffs in terms of flops / precision:
 
