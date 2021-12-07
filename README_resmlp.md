@@ -2,8 +2,8 @@
 # ResMLP: Feedforward networks for image classification with data-efficient training
 
 This repository contains PyTorch evaluation code, training code and pretrained models for the following projects:
-* [DeiT](README.md) (Data-Efficient Image Transformers) 
-* [CaiT](README_cait.md) (Going deeper with Image Transformers)
+* [DeiT](README.md) (Data-Efficient Image Transformers), ICML 2021 
+* [CaiT](README_cait.md) (Going deeper with Image Transformers), ICCV 2021 (Oral)
 * [ResMLP](README_resmlp.md) (ResMLP: Feedforward networks for image classification with data-efficient training)
 
 ResMLP obtain good performance given its simplicity:
