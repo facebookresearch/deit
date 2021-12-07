@@ -1,5 +1,5 @@
 
-# CaiT: Going deeper with Image Transformers
+# CaiT: Going deeper with Image Transformers 
 
 This repository contains PyTorch evaluation code, training code and pretrained models for DeiT (Data-Efficient Image Transformers) and CaiT (Going deeper with Image Transformers). All models are trained during 400 epochs. 
 
@@ -14,11 +14,13 @@ For details see [Going deeper with Image Transformers](https://arxiv.org/abs/210
 If you use this code for a paper please cite:
 
 ```
-@article{touvron2021cait,
-  title={Going deeper with Image Transformers},
-  author={Hugo Touvron and Matthieu Cord and Alexandre Sablayrolles and Gabriel Synnaeve and Herv\'e J\'egou},
-  journal={arXiv preprint arXiv:2103.17239},
-  year={2021}
+@InProceedings{Touvron_2021_ICCV,
+    author    = {Touvron, Hugo and Cord, Matthieu and Sablayrolles, Alexandre and Synnaeve, Gabriel and J\'egou, Herv\'e},
+    title     = {Going Deeper With Image Transformers},
+    booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
+    month     = {October},
+    year      = {2021},
+    pages     = {32-42}
 }
 ```
 
