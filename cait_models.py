@@ -11,12 +11,11 @@ from timm.models.layers import trunc_normal_, DropPath
 
 
 __all__ = [
-    'cait_M48', 'cait_M36', 'cait_M4',
+    'cait_M48', 'cait_M36',
     'cait_S36', 'cait_S24','cait_S24_224',
     'cait_XS24','cait_XXS24','cait_XXS24_224',
     'cait_XXS36','cait_XXS36_224'
 ]
-
 
 class Class_Attention(nn.Module):
     # taken from https://github.com/rwightman/pytorch-image-models/blob/master/timm/models/vision_transformer.py
