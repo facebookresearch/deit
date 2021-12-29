@@ -5,6 +5,7 @@ This repository contains PyTorch evaluation code, training code and pretrained m
 * [DeiT](README.md) (Data-Efficient Image Transformers), ICML 2021 
 * [CaiT](README_cait.md) (Going deeper with Image Transformers), ICCV 2021 (Oral)
 * ResMLP (ResMLP: Feedforward networks for image classification with data-efficient training)
+* [PatchConvnet](README_patchconvnet.md) (Augmenting Convolutional networks with attention-based aggregation)
 
 ResMLP obtain good performance given its simplicity:
 
