@@ -6,7 +6,7 @@ This repository contains PyTorch evaluation code, training code and pretrained m
 * [ResMLP](README_resmlp.md) (ResMLP: Feedforward networks for image classification with data-efficient training)
 * PatchConvnet (Augmenting Convolutional networks with attention-based aggregation)
 
-PatchConvnet allows to have interpretable attention maps with convnets:
+PatchConvnet provides interpretable attention maps to convnets:
 
 <p align="center">
   <img width="900"  src=".github/patch_convnet.png">
