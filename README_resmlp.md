@@ -12,14 +12,14 @@ ResMLP obtain good performance given its simplicity:
   <img width="900"  src=".github/resmlp.png">
 </p>
 
-For details see [ResMLP: Feedforward networks for image classification with data-efficient training](https://arxiv.org/abs/2105.03404) by Hugo Touvron, Piotr Bojanowski, Mathilde Caron, Matthieu Cord, Alaaeldin El-Nouby, Edouard Grave, Armand Joulin, Gabriel Synnaeve, Jakob Verbeek and Hervé Jégou.
+For details see [ResMLP: Feedforward networks for image classification with data-efficient training](https://arxiv.org/abs/2105.03404) by Hugo Touvron, Piotr Bojanowski, Mathilde Caron, Matthieu Cord, Alaaeldin El-Nouby, Edouard Grave, Gautier Izacard, Armand Joulin, Gabriel Synnaeve, Jakob Verbeek and Hervé Jégou.
 
 If you use this code for a paper please cite:
 
 ```
 @article{touvron2021resmlp,
   title={ResMLP: Feedforward networks for image classification with data-efficient training},
-  author={Hugo Touvron and Piotr Bojanowski and Mathilde Caron and M. Cord and Alaaeldin El-Nouby and Edouard Grave and Armand Joulin and Gabriel Synnaeve and Jakob Verbeek and Herv'e J'egou},
+  author={Hugo Touvron and Piotr Bojanowski and Mathilde Caron and Matthieu Cord and Alaaeldin El-Nouby and Edouard Grave and Gautier Izacard and Armand Joulin and Gabriel Synnaeve and Jakob Verbeek and Herv'e J'egou},
   journal={arXiv preprint arXiv:2105.03404},
   year={2021},
 }
