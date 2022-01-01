@@ -13,7 +13,7 @@ class RASampler(torch.utils.data.Sampler):
     Heavily based on torch.utils.data.DistributedSampler
     """
 
-    def __init__(self, dataset, num_replicas=None, rank=None, shuffle=True):
+    def __init__(self, dataset, num_replicas=None, rank=None, shuffle=True, num_repeats: int = 3):
         if num_replicas is None:
             if not dist.is_available():
                 raise RuntimeError("Requires distributed package to be available")
@@ -25,8 +25,9 @@ class RASampler(torch.utils.data.Sampler):
         self.dataset = dataset
         self.num_replicas = num_replicas
         self.rank = rank
+        self.num_repeats = num_repeats
         self.epoch = 0
-        self.num_samples = int(math.ceil(len(self.dataset) * 3.0 / self.num_replicas))
+        self.num_samples = int(math.ceil(len(self.dataset) * self.num_repeats / self.num_replicas))
         self.total_size = self.num_samples * self.num_replicas
         # self.num_selected_samples = int(math.ceil(len(self.dataset) / self.num_replicas))
         self.num_selected_samples = int(math.floor(len(self.dataset) // 256 * 256 / self.num_replicas))
@@ -36,13 +37,13 @@ class RASampler(torch.utils.data.Sampler):
         if self.shuffle:
             # deterministically shuffle based on epoch
             g = torch.Generator()
-            g.manual_seed(self.epoch)            
-            indices = torch.randperm(len(self.dataset), generator=g).tolist()
+            g.manual_seed(self.epoch)
+            indices = torch.randperm(len(self.dataset), generator=g)
         else:
-            indices = list(range(len(self.dataset)))
+            indices = torch.arange(start=0, end=len(self.dataset))
 
         # add extra samples to make it evenly divisible
-        indices = [ele for ele in indices for i in range(3)]
+        indices = torch.repeat_interleave(indices, repeats=self.num_repeats, dim=0).tolist()
         indices += indices[:(self.total_size - len(indices))]
         assert len(indices) == self.total_size
 
