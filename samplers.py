@@ -48,7 +48,7 @@ class RASampler(torch.utils.data.Sampler):
         indices = torch.repeat_interleave(indices, repeats=self.num_repeats, dim=0)
         padding_size: int = self.total_size - len(indices)
         if padding_size > 0:
-            indices += torch.cat([indices, indices[:padding_size]], dim=0)
+            indices = torch.cat([indices, indices[:padding_size]], dim=0)
         assert len(indices) == self.total_size
 
         # subsample
