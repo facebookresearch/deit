@@ -45,10 +45,10 @@ class RASampler(torch.utils.data.Sampler):
             indices = torch.arange(start=0, end=len(self.dataset))
 
         # add extra samples to make it evenly divisible
-        indices = torch.repeat_interleave(indices, repeats=self.num_repeats, dim=0)
+        indices = torch.repeat_interleave(indices, repeats=self.num_repeats, dim=0).tolist()
         padding_size: int = self.total_size - len(indices)
         if padding_size > 0:
-            indices = torch.cat([indices, indices[:padding_size]], dim=0)
+            indices += indices[:padding_size]
         assert len(indices) == self.total_size
 
         # subsample
