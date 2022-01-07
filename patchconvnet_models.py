@@ -13,7 +13,7 @@ from timm.models.efficientnet_blocks import SqueezeExcite
 __all__ = [
     'S60','S120',
     'B60','B120',
-    'L60','L120'
+    'L60','L120','S60_multi'
 ]
 
 class Mlp(nn.Module):
@@ -74,7 +74,43 @@ class Learned_Aggregation_Layer(nn.Module):
         
         return x_cls
     
+class Learned_Aggregation_Layer_multi(nn.Module):
+    def __init__(self, dim, num_heads=8, qkv_bias=False, qk_scale=None, attn_drop=0., proj_drop=0.,num_classes=1000):
+        super().__init__()
+        self.num_heads = num_heads
+        head_dim = dim // num_heads
+        self.scale = qk_scale or head_dim ** -0.5
+
+        self.q = nn.Linear(dim, dim, bias=qkv_bias)
+        self.k = nn.Linear(dim, dim, bias=qkv_bias)
+        self.v = nn.Linear(dim, dim, bias=qkv_bias)
+        self.attn_drop = nn.Dropout(attn_drop)
+        self.proj = nn.Linear(dim, dim)
+        self.proj_drop = nn.Dropout(proj_drop)
+        self.num_classes =num_classes
+
+
+    
+    def forward(self, x ):
+
+        B, N, C = x.shape
+        q = self.q(x[:,:self.num_classes]).reshape(B, self.num_classes, self.num_heads, C // self.num_heads).permute(0, 2, 1, 3)
+        k = self.k(x[:,self.num_classes:]).reshape(B, N-self.num_classes, self.num_heads, C // self.num_heads).permute(0, 2, 1, 3)
+
+        q = q * self.scale
+        v = self.v(x[:,self.num_classes:]).reshape(B, N-self.num_classes, self.num_heads, C // self.num_heads).permute(0, 2, 1, 3)        
+
+        attn = (q @ k.transpose(-2, -1)) 
+        attn = attn.softmax(dim=-1)
+        attn = self.attn_drop(attn)
+
+        x_cls = (attn @ v).transpose(1, 2).reshape(B, self.num_classes, C)
+        x_cls = self.proj(x_cls)
+        x_cls = self.proj_drop(x_cls)
         
+        
+        return x_cls  
+    
 class Layer_scale_init_Block_only_token(nn.Module):
 
     def __init__(self, dim, num_heads, mlp_ratio=4., qkv_bias=False, qk_scale=None, drop=0., attn_drop=0.,
@@ -186,10 +222,11 @@ class PatchConvnet(nn.Module):
                 Attention_block_token_only=Learned_Aggregation_Layer,
                 Mlp_block_token_only= Mlp,
                 depth_token_only=1,
-                mlp_ratio_clstk = 3.0):
+                mlp_ratio_clstk = 3.0,
+                multiclass=False):
         super().__init__()
 
-        
+        self.multiclass = multiclass
         self.patch_size = patch_size
         self.num_classes = num_classes
         self.num_features = self.embed_dim = embed_dim  # num_features for consistency with other models
@@ -197,9 +234,12 @@ class PatchConvnet(nn.Module):
         self.patch_embed = Patch_layer(
                 img_size=img_size, patch_size=patch_size, in_chans=in_chans, embed_dim=embed_dim)
         num_patches = self.patch_embed.num_patches
-
-        self.cls_token = nn.Parameter(torch.zeros(1, 1, int(embed_dim)))
-
+        
+        if not self.multiclass:
+            self.cls_token = nn.Parameter(torch.zeros(1, 1, int(embed_dim)))
+        else:
+            self.cls_token = nn.Parameter(torch.zeros(1, num_classes, int(embed_dim)))
+            
         if not dpr_constant:
             dpr = [x.item() for x in torch.linspace(0, drop_path_rate, depth)]
         else:
@@ -226,7 +266,10 @@ class PatchConvnet(nn.Module):
         self.total_len = depth_token_only+depth
         
         self.feature_info = [dict(num_chs=int(embed_dim ), reduction=0, module='head')]
-        self.head = nn.Linear(int(embed_dim), num_classes) if num_classes > 0 else nn.Identity()
+        if not self.multiclass:
+            self.head = nn.Linear(int(embed_dim), num_classes) if num_classes > 0 else nn.Identity()
+        else:
+            self.head = nn.ModuleList([nn.Linear(int(embed_dim), 1)  for _ in range(num_classes)])
 
         self.rescale = .02
 
@@ -269,12 +312,23 @@ class PatchConvnet(nn.Module):
         x = torch.cat((cls_tokens, x), dim=1)
 
         x = self.norm(x)
-        return x[:, 0]
+        
+        if not self.multiclass:
+            return x[:, 0]
+        else:
+            return x[:, :self.num_classes].reshape(B,self.num_classes,-1)
 
     def forward(self, x):
+        B = x.shape[0]
         x  = self.forward_features(x)
-        x = self.head(x)
-        return x
+        if not self.multiclass:
+            x = self.head(x)
+            return x
+        else:
+            all_results = []
+            for i in range(self.num_classes):
+                all_results.append(self.head[i](x[:,i]))
+            return torch.cat(all_results,dim=1).reshape(B,self.num_classes)
         
 @register_model
 def S60(pretrained=False, **kwargs):
@@ -346,5 +400,19 @@ def L120(pretrained=False, **kwargs):
         Attention_block = Conv_blocks_se,
         init_scale=1e-6,
         mlp_ratio_clstk=3.0,**kwargs)
+
+    return model
+
+@register_model
+def S60_multi(pretrained=False, **kwargs):
+    model = PatchConvnet(
+        patch_size=16, embed_dim=384, depth=60, num_heads=1, qkv_bias=True,
+        norm_layer=partial(nn.LayerNorm, eps=1e-6),
+        Patch_layer=ConvStem,
+        Attention_block = Conv_blocks_se,
+        Attention_block_token_only = Learned_Aggregation_Layer_multi,
+        depth_token_only=1,
+        mlp_ratio_clstk=3.0,
+        multiclass=True,**kwargs)
 
     return model
