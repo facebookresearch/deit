@@ -27,7 +27,7 @@ If you use this code for a paper please cite:
 
 # Model Zoo
 
-We provide PatchConvnet models pretrained on ImageNet-1k 2012:
+We provide PatchConvnet models pretrained on ImageNet-1k:
 
 | name | acc@1 | res | FLOPs| #params | url |
 | --- | --- | --- | --- | --- | --- | 
@@ -36,7 +36,7 @@ We provide PatchConvnet models pretrained on ImageNet-1k 2012:
 | B60 | 83.5 | 224 |  15.8B |99.4M | coming soon |
 | B120 |84.1 | 224 |  29.9B |188.6M | coming soon |
 
-Model pretrained on ImageNet-21k with finetuning on ImageNet-1k 2012:
+Model pretrained on ImageNet-21k with finetuning on ImageNet-1k:
 
 | name | acc@1 | res | FLOPs| #params | url |
 | --- | --- | --- | --- | --- | --- | 
@@ -47,6 +47,14 @@ Model pretrained on ImageNet-21k with finetuning on ImageNet-1k 2012:
 | B60 |86.5 | 384 |  46.5B |99.4M |coming soon |
 | B120 |86.0 | 224 |  29.8B |188.6M |coming soon |
 | B120 |86.9 | 384 |  87.7B |188.6M |coming soon |
+
+PatchConvnet models with multi-class tokens on ImageNet-1k:
+
+| name | acc@1 | res | FLOPs| #params | url |
+| --- | --- | --- | --- | --- | --- | 
+| S60 (scratch)|81.1 | 224 |  5.3B |25.6M |coming soon |
+| S60 (finetune)|82.0 | 224 |  5.3B |25.6M |coming soon |
+
 
 The models are also available via torch hub.
 Before using it, make sure you have the latest pytorch-image-models package [`timm`](https://github.com/rwightman/pytorch-image-models) by [Ross Wightman](https://github.com/rwightman) installed. 
