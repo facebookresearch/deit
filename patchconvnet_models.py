@@ -115,14 +115,14 @@ class Learned_Aggregation_Layer_multi(nn.Module):
             .permute(0, 2, 1, 3)
         )
         k = (
-            self.k(x[:, self.num_classes :])
+            self.k(x[:, self.num_classes:])
             .reshape(B, N - self.num_classes, self.num_heads, C // self.num_heads)
             .permute(0, 2, 1, 3)
         )
 
         q = q * self.scale
         v = (
-            self.v(x[:, self.num_classes :])
+            self.v(x[:, self.num_classes:])
             .reshape(B, N - self.num_classes, self.num_heads, C // self.num_heads)
             .permute(0, 2, 1, 3)
         )
@@ -206,7 +206,7 @@ class Layer_scale_init_Block(nn.Module):
         drop_path: float = 0.0,
         act_layer: nn.Module = nn.GELU,
         norm_layer: nn.Module = nn.LayerNorm,
-        Attention_block: Optional[nn.Module] = None,
+        Attention_block: Optional = None,
         init_values: float = 1e-4,
     ):
         super().__init__()
@@ -260,7 +260,7 @@ class PatchConvnet(nn.Module):
         img_size: int = 224,
         patch_size: int = 16,
         in_chans: int = 3,
-        num_class: int = 1000,
+        num_classes: int = 1000,
         embed_dim: int = 768,
         depth: int = 12,
         num_heads: int = 1,
@@ -270,17 +270,17 @@ class PatchConvnet(nn.Module):
         attn_drop_rate: float = 0.0,
         drop_path_rate: float = 0.0,
         hybrid_backbone: Optional[nn.Module] = None,
-        norm_layer = nn.LayerNorm,
+        norm_layer=nn.LayerNorm,
         global_pool: Optional[str] = None,
-        block_layers = Layer_scale_init_Block,
-        block_layers_token = Layer_scale_init_Block_only_token,
-        Patch_layer = ConvStem,
+        block_layers=Layer_scale_init_Block,
+        block_layers_token=Layer_scale_init_Block_only_token,
+        Patch_layer=ConvStem,
         act_layer: nn.Module = nn.GELU,
-        Attention_block = Conv_blocks_se,
+        Attention_block=Conv_blocks_se,
         dpr_constant: bool = True,
         init_scale: float = 1e-4,
-        Attention_block_token_only = Learned_Aggregation_Layer,
-        Mlp_block_token_only = Mlp,
+        Attention_block_token_only=Learned_Aggregation_Layer,
+        Mlp_block_token_only=Mlp,
         depth_token_only: int = 1,
         mlp_ratio_clstk: float = 3.0,
         multiclass: bool = False,
@@ -295,7 +295,6 @@ class PatchConvnet(nn.Module):
         self.patch_embed = Patch_layer(
             img_size=img_size, patch_size=patch_size, in_chans=in_chans, embed_dim=embed_dim
         )
-        num_patches = self.patch_embed.num_patches
 
         if not self.multiclass:
             self.cls_token = nn.Parameter(torch.zeros(1, 1, int(embed_dim)))
