@@ -150,9 +150,9 @@ class Layer_scale_init_Block_only_token(nn.Module):
         attn_drop: float = 0.0,
         drop_path: float = 0.0,
         act_layer: nn.Module = nn.GELU,
-        norm_layer: nn.Module = nn.LayerNorm,
-        Attention_block: nn.Module = Learned_Aggregation_Layer,
-        Mlp_block: nn.Module = Mlp,
+        norm_layer=nn.LayerNorm,
+        Attention_block=Learned_Aggregation_Layer,
+        Mlp_block=Mlp,
         init_values: float = 1e-4,
     ):
         super().__init__()
@@ -190,7 +190,7 @@ class Conv_blocks_se(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         B, N, C = x.shape
-        H = W = int(N**0.5)
+        H = W = int(N ** 0.5)
         x = x.transpose(-1, -2)
         x = x.reshape(B, C, H, W)
         x = self.qkv_pos(x)
@@ -205,8 +205,8 @@ class Layer_scale_init_Block(nn.Module):
         dim: int,
         drop_path: float = 0.0,
         act_layer: nn.Module = nn.GELU,
-        norm_layer: nn.Module = nn.LayerNorm,
-        Attention_block: Optional = None,
+        norm_layer=nn.LayerNorm,
+        Attention_block=None,
         init_values: float = 1e-4,
     ):
         super().__init__()
@@ -238,7 +238,7 @@ class ConvStem(nn.Module):
         self.patch_size = patch_size
         self.num_patches = num_patches
 
-        self.proj = torch.nn.Sequential(
+        self.proj = nn.Sequential(
             conv3x3(in_chans, embed_dim // 8, 2),
             nn.GELU(),
             conv3x3(embed_dim // 8, embed_dim // 4, 2),
@@ -269,7 +269,7 @@ class PatchConvnet(nn.Module):
         drop_rate: float = 0.0,
         attn_drop_rate: float = 0.0,
         drop_path_rate: float = 0.0,
-        hybrid_backbone: Optional[nn.Module] = None,
+        hybrid_backbone: Optional = None,
         norm_layer=nn.LayerNorm,
         global_pool: Optional[str] = None,
         block_layers=Layer_scale_init_Block,
@@ -412,7 +412,7 @@ class PatchConvnet(nn.Module):
 
 
 @register_model
-def S60(pretrained=False, **kwargs):
+def S60(pretrained: bool = False, **kwargs):
     model = PatchConvnet(
         patch_size=16,
         embed_dim=384,
@@ -431,7 +431,7 @@ def S60(pretrained=False, **kwargs):
 
 
 @register_model
-def S120(pretrained=False, **kwargs):
+def S120(pretrained: bool = False, **kwargs):
     model = PatchConvnet(
         patch_size=16,
         embed_dim=384,
@@ -450,7 +450,7 @@ def S120(pretrained=False, **kwargs):
 
 
 @register_model
-def B60(pretrained=False, **kwargs):
+def B60(pretrained: bool = False, **kwargs):
     model = PatchConvnet(
         patch_size=16,
         embed_dim=768,
@@ -467,7 +467,7 @@ def B60(pretrained=False, **kwargs):
 
 
 @register_model
-def B120(pretrained=False, **kwargs):
+def B120(pretrained: bool = False, **kwargs):
     model = PatchConvnet(
         patch_size=16,
         embed_dim=768,
@@ -485,7 +485,7 @@ def B120(pretrained=False, **kwargs):
 
 
 @register_model
-def L60(pretrained=False, **kwargs):
+def L60(pretrained: bool = False, **kwargs):
     model = PatchConvnet(
         patch_size=16,
         embed_dim=1024,
@@ -504,7 +504,7 @@ def L60(pretrained=False, **kwargs):
 
 
 @register_model
-def L120(pretrained=False, **kwargs):
+def L120(pretrained: bool = False, **kwargs):
     model = PatchConvnet(
         patch_size=16,
         embed_dim=1024,
@@ -523,7 +523,7 @@ def L120(pretrained=False, **kwargs):
 
 
 @register_model
-def S60_multi(pretrained=False, **kwargs):
+def S60_multi(pretrained: bool = False, **kwargs):
     model = PatchConvnet(
         patch_size=16,
         embed_dim=384,
