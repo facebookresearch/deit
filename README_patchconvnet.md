@@ -59,6 +59,8 @@ PatchConvnet models with multi-class tokens on ImageNet-1k:
 The models are also available via torch hub.
 Before using it, make sure you have the latest pytorch-image-models package [`timm`](https://github.com/rwightman/pytorch-image-models) by [Ross Wightman](https://github.com/rwightman) installed. 
 
+# Notebook for visualization
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1bmdwOaLmMt7IVrnbumVaXPGDwHeBL36M?usp=sharing#scrollTo=ntcNsFB6kWAf) We provide a notebook to visualize the attention maps of our networks.
 
 # License
 This repository is released under the Apache 2.0 license as found in the [LICENSE](LICENSE) file.
