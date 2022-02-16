@@ -60,6 +60,7 @@ class Learned_Aggregation_Layer(nn.Module):
         self.q = nn.Linear(dim, dim, bias=qkv_bias)
         self.k = nn.Linear(dim, dim, bias=qkv_bias)
         self.v = nn.Linear(dim, dim, bias=qkv_bias)
+        self.id = nn.Identity()
         self.attn_drop = nn.Dropout(attn_drop)
         self.proj = nn.Linear(dim, dim)
         self.proj_drop = nn.Dropout(proj_drop)
@@ -73,6 +74,7 @@ class Learned_Aggregation_Layer(nn.Module):
         v = self.v(x).reshape(B, N, self.num_heads, C // self.num_heads).permute(0, 2, 1, 3)
 
         attn = q @ k.transpose(-2, -1)
+        attn = self.id(attn)
         attn = attn.softmax(dim=-1)
         attn = self.attn_drop(attn)
 
