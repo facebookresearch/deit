@@ -246,7 +246,7 @@ To finetune a DeiT-base on 384 resolution images for 30 epochs, starting from a 
 python run_with_submitit.py --model deit_base_patch16_384 --batch-size 32 --finetune https://dl.fbaipublicfiles.com/deit/deit_base_patch16_224-b5f2ef4d.pth --input-size 384 --use_volta32 --nodes 2 --lr 5e-6 --weight-decay 1e-8 --epochs 30 --min-lr 5e-6
 ```
 
-### Other Unofficial Implementations
+### Other: Unofficial Implementations and Tutorial
 
  - [TensorFlow](https://github.com/sayakpaul/deit-tf) by [Sayak Paul](https://github.com/sayakpaul)
  - [Tutorial](https://github.com/sayakpaul/probing-vits/) by [Aritra Roy Gosthipaty](https://github.com/ariG23498) and [Sayak Paul](https://github.com/sayakpaul)
