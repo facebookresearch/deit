@@ -65,7 +65,7 @@ def get_test_transforms(input_size):
 
 Remark: for CaiT M48 it is best to evaluate with FP32 precision
 
-### Other Unofficial Implementations
+### Other: Unofficial Implementations
 
  - [TensorFlow](https://github.com/sayakpaul/cait-tf) by [Sayak Paul](https://github.com/sayakpaul)
  
