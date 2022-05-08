@@ -2,10 +2,12 @@
 # CaiT: Going deeper with Image Transformers 
 
 This repository contains PyTorch evaluation code, training code and pretrained models for:
-* [DeiT](README.md) (Data-Efficient Image Transformers), ICML 2021
+* [DeiT](README_deit.md) (Data-Efficient Image Transformers), ICML 2021
 * CaiT (Going deeper with Image Transformers), ICCV 2021 (Oral)
 * [ResMLP](README_resmlp.md) (ResMLP: Feedforward networks for image classification with data-efficient training) 
 * [PatchConvnet](README_patchconvnet.md) (Augmenting Convolutional networks with attention-based aggregation)
+* [3Things](README_3things.md) (Three things everyone should know about Vision Transformers)
+* [DeiT III](README_revenge.md) (DeiT III: Revenge of the ViT)
 
 CaiT obtain competitive tradeoffs in terms of flops / precision:
 
@@ -63,6 +65,10 @@ def get_test_transforms(input_size):
 
 Remark: for CaiT M48 it is best to evaluate with FP32 precision
 
+### Other Unofficial Implementations
+
+ - [TensorFlow](https://github.com/sayakpaul/cait-tf) by [Sayak Paul](https://github.com/sayakpaul)
+ 
 # License
 This repository is released under the Apache 2.0 license as found in the [LICENSE](LICENSE) file.
 
