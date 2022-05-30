@@ -90,7 +90,6 @@ class horizontal_flip(object):
 def new_data_aug_generator(args = None):
     img_size = args.input_size
     remove_random_resized_crop = args.src
-    named_loss = args.named_loss
     mean, std = [0.485, 0.456, 0.406], [0.229, 0.224, 0.225]
     primary_tfl = []
     scale=(0.08, 1.0)
