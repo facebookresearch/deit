@@ -1,6 +1,8 @@
 # Copyright (c) 2015-present, Facebook, Inc.
 # All rights reserved.
 import argparse
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = "2"
 import datetime
 import numpy as np
 import time
@@ -16,6 +18,8 @@ from timm.loss import LabelSmoothingCrossEntropy, SoftTargetCrossEntropy
 from timm.scheduler import create_scheduler
 from timm.optim import create_optimizer
 from timm.utils import NativeScaler, get_state_dict, ModelEma
+
+from mae_models import mae_models
 
 from datasets import build_dataset
 from engine import train_one_epoch, evaluate
@@ -40,6 +44,12 @@ def get_args_parser():
     parser.add_argument('--model', default='deit_base_patch16_224', type=str, metavar='MODEL',
                         help='Name of model to train')
     parser.add_argument('--input-size', default=224, type=int, help='images input size')
+    parser.add_argument('--mask_ratio', default=0.75, type=float,
+                        help='Masking ratio (percentage of removed patches).')
+
+    parser.add_argument('--norm_pix_loss', action='store_true',
+                        help='Use (per-patch) normalized pixels as targets for computing loss')
+    parser.set_defaults(norm_pix_loss=False)
 
     parser.add_argument('--drop', type=float, default=0.0, metavar='PCT',
                         help='Dropout rate (default: 0.)')
@@ -251,14 +261,15 @@ def main(args):
             label_smoothing=args.smoothing, num_classes=args.nb_classes)
 
     print(f"Creating model: {args.model}")
-    model = create_model(
-        args.model,
-        pretrained=False,
-        num_classes=args.nb_classes,
-        drop_rate=args.drop,
-        drop_path_rate=args.drop_path,
-        drop_block_rate=None,
-    )
+    model = mae_models.__dict__[args.model](norm_pix_loss=args.norm_pix_loss)
+    # model = create_model(
+    #     args.model,
+    #     pretrained=False,
+    #     num_classes=args.nb_classes,
+    #     drop_rate=args.drop,
+    #     drop_path_rate=args.drop_path,
+    #     drop_block_rate=None,
+    # )
 
                     
     if args.finetune:
