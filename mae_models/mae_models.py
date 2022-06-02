@@ -33,11 +33,11 @@ class DistilledVisionTransformer(VisionTransformer):
         # taken from https://github.com/rwightman/pytorch-image-models/blob/master/timm/models/vision_transformer.py
         # with slight modifications to add the dist_token
         B = x.shape[0]
-        x = self.patch_embed(x)
+        x = self.patch_embed(x) # x: (64, 3, 224, 244) -> (64, 196, 384)
 
         cls_tokens = self.cls_token.expand(B, -1, -1)  # stole cls_tokens impl from Phil Wang, thanks
         dist_token = self.dist_token.expand(B, -1, -1)
-        x = torch.cat((cls_tokens, dist_token, x), dim=1)
+        x = torch.cat((cls_tokens, dist_token, x), dim=1) # 在前面加上蒸馏token
 
         x = x + self.pos_embed
         x = self.pos_drop(x)
@@ -49,9 +49,9 @@ class DistilledVisionTransformer(VisionTransformer):
         return x[:, 0], x[:, 1]
 
     def forward(self, x):
-        x, x_dist = self.forward_features(x)
-        x = self.head(x)
-        x_dist = self.head_dist(x_dist)
+        x, x_dist = self.forward_features(x) # 返回每个batch的positional embedding, distillation embedding
+        x = self.head(x) # classifier head
+        x_dist = self.head_dist(x_dist) # classfier head
         if self.training:
             return x, x_dist
         else:

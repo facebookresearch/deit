@@ -261,7 +261,9 @@ def main(args):
             label_smoothing=args.smoothing, num_classes=args.nb_classes)
 
     print(f"Creating model: {args.model}")
-    model = mae_models.__dict__[args.model](norm_pix_loss=args.norm_pix_loss)
+    # model = mae_models.__dict__[args.model](norm_pix_loss=args.norm_pix_loss)
+    # 使用蒸馏
+    model = mae_models.__dict__[args.model]()
     # model = create_model(
     #     args.model,
     #     pretrained=False,
@@ -383,7 +385,7 @@ def main(args):
                 args.teacher_path, map_location='cpu', check_hash=True)
         else:
             checkpoint = torch.load(args.teacher_path, map_location='cpu')
-        teacher_model.load_state_dict(checkpoint['model'])
+        teacher_model.load_state_dict(checkpoint['model_state'], strict=False)
         teacher_model.to(device)
         teacher_model.eval()
 
