@@ -91,7 +91,7 @@ The directory structure is the standard layout for the torchvision [`datasets.Im
   val/
     class1/
       img3.jpeg
-    class/2
+    class2/
       img4.jpeg
 ```
 
