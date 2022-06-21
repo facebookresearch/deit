@@ -33,7 +33,7 @@ We propose to finetune only the attentions (flag ```--attn-only```) to adapt the
 
 
 ## MLP patch projection
-We propose to replace the linear patch projection by an MLP patch projection (see class [hMLP_stem](models_v2.py))
+We propose to replace the linear patch projection by an MLP patch projection (see class [hMLP_stem](models_v2.py)). A key advantage is that this pre-processing stem is compatible and improves mask-based self-supervised training like BeiT, MAE, iBoT and SplitMask.  
 
 <img src=".github/hmlp.png" height="190">
 
