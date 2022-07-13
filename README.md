@@ -64,7 +64,7 @@ This repository contains PyTorch evaluation code, training code and pretrained m
 </details>
 <details>
 <summary>
-<a href="README_3things.md">3Things</a> (Three things everyone should know about Vision Transformers) [<b>bib</b>]
+<a href="README_3things.md">3Things</a> (Three things everyone should know about Vision Transformers), ECCV 2022 [<b>bib</b>]
 </summary>
 
 ```
@@ -78,7 +78,7 @@ This repository contains PyTorch evaluation code, training code and pretrained m
 </details>
 <details>
 <summary>
-<a href="README_revenge.md">DeiT III</a> (DeiT III: Revenge of the ViT) [<b>bib</b>]
+<a href="README_revenge.md">DeiT III</a> (DeiT III: Revenge of the ViT), ECCV 2022 [<b>bib</b>]
 </summary>
 
 ```
