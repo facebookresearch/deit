@@ -164,7 +164,7 @@ def _load_checkpoint_for_ema(model_ema, checkpoint):
     Workaround for ModelEma._load_checkpoint to accept an already-loaded object
     """
     mem_file = io.BytesIO()
-    torch.save(checkpoint, mem_file)
+    torch.save({'state_dict_ema':checkpoint}, mem_file)
     mem_file.seek(0)
     model_ema._load_checkpoint(mem_file)
 
