@@ -36,6 +36,7 @@ We provide baseline ViT models pretrained on ImageNet-1k and ImageNet-21k.
 | ---  | --- | --- | --- | --- | --- | --- | --- | --- |
 | ViT-S | 22.0 | 4.6 | 1891 | 987 | 224x224 | 81.4 | 70.5 | [model](https://dl.fbaipublicfiles.com/deit/deit_3_small_224_1k.pth) |
 | ViT-S | 22.0 | 15.5 | 424 | 4569 | 384x384 | 83.4 | 73.1 | [model](https://dl.fbaipublicfiles.com/deit/deit_3_small_384_1k.pth) |
+| ViT-M | 38.8 | 8.0 | - | - | 224x224 | 83.0 | 72.3 | [model](https://dl.fbaipublicfiles.com/deit/deit_3_medium_224_1k.pth) |
 | ViT-B | 86.6 | 17.5 | 831 | 2078 | 224x224 | 83.8 | 73.6 | [model](https://dl.fbaipublicfiles.com/deit/deit_3_base_224_1k.pth) |
 | ViT-B | 86.9 | 55.5 | 190 | 8956 | 384x384 | 85.0 | 74.8 | [model](https://dl.fbaipublicfiles.com/deit/deit_3_base_384_1k.pth) |
 | ViT-L | 304.4 | 61.6 | 277 | 3789 | 224x224 | 84.9 | 75.1 | [model](https://dl.fbaipublicfiles.com/deit/deit_3_large_224_1k.pth) |
@@ -50,6 +51,7 @@ We provide baseline ViT models pretrained on ImageNet-1k and ImageNet-21k.
 | ---  | --- | --- | --- | --- | --- | --- | --- | --- |
 | ViT-S | 22.0 | 4.6 | 1891 | 987 | 224x224 | 83.1 | 73.8 | [model](https://dl.fbaipublicfiles.com/deit/deit_3_small_224_21k.pth) |
 | ViT-S | 22.0 | 15.5 | 424 | 4569 | 384x384 | 84.8 | 75.1 |[model](https://dl.fbaipublicfiles.com/deit/deit_3_small_384_21k.pth) |
+| ViT-M | 38.8 | 8.0 | - | - | 224x224 | 84.5 | 74.7 | [model](https://dl.fbaipublicfiles.com/deit/deit_3_medium_224_21k.pth) |
 | ViT-B | 86.6 | 17.5 | 831 | 2078 | 224x224 | 85.7 | 76.5 | [model](https://dl.fbaipublicfiles.com/deit/deit_3_base_224_21k.pth) |
 | ViT-B | 86.9 | 55.5 | 190 | 8956 | 384x384 | 86.7 | 77.9 | [model](https://dl.fbaipublicfiles.com/deit/deit_3_base_384_21k.pth) |
 | ViT-L | 304.4 | 61.6 | 277 | 3789 | 224x224 | 87.0 | 78.6 | [model](https://dl.fbaipublicfiles.com/deit/deit_3_large_224_21k.pth) |
