@@ -106,6 +106,10 @@ def get_args_parser():
     parser.add_argument('--no-repeated-aug', action='store_false', dest='repeated_aug')
     parser.set_defaults(repeated_aug=True)
     
+    parser.add_argument('--train-mode', action='store_true')
+    parser.add_argument('--no-train-mode', action='store_false', dest='train_mode')
+    parser.set_defaults(train_mode=True)
+    
     parser.add_argument('--ThreeAugment', action='store_true') #3augment
     
     parser.add_argument('--src', action='store_true') #simple random crop
@@ -416,7 +420,7 @@ def main(args):
             model, criterion, data_loader_train,
             optimizer, device, epoch, loss_scaler,
             args.clip_grad, model_ema, mixup_fn,
-            set_training_mode=args.finetune == '',  # keep in eval mode during finetuning
+            set_training_mode=args.train_mode,  # keep in eval mode for deit finetuning / train mode for training and deit III finetuning
             args = args,
         )
 
