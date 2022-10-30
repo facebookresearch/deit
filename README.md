@@ -36,7 +36,7 @@ This repository contains PyTorch evaluation code, training code and pretrained m
 </details>
 <details>
 <summary>
-<a href="README_resmlp.md">ResMLP</a> (ResMLP: Feedforward networks for image classification with data-efficient training) [<b>bib</b>]
+<a href="README_resmlp.md">ResMLP</a> (ResMLP: Feedforward networks for image classification with data-efficient training), TPAMI 2022 [<b>bib</b>]
 </summary>
 
 ```
