@@ -1,100 +1,63 @@
-# Data-Efficient architectures and training for Image classification
+# Sparsity Research on ViT
 
-This repository contains PyTorch evaluation code, training code and pretrained models for the following papers:
-<details>
-<summary>
-  <a href="README_deit.md">DeiT</a> Data-Efficient Image Transformers, ICML 2021 [<b>bib</b>]
-</summary>
+This reposity contains the PyTorch training code for the original DeiT models. Currently the code base are forked from the official [DeiT repo](https://github.com/facebookresearch/deit)
 
-```
-@InProceedings{pmlr-v139-touvron21a,
-  title =     {Training data-efficient image transformers &amp; distillation through attention},
-  author =    {Touvron, Hugo and Cord, Matthieu and Douze, Matthijs and Massa, Francisco and Sablayrolles, Alexandre and Jegou, Herve},
-  booktitle = {International Conference on Machine Learning},
-  pages =     {10347--10357},
-  year =      {2021},
-  volume =    {139},
-  month =     {July}
-}
-```
-</details>
-<details>
-<summary>
-<a href="README_cait.md">CaiT</a> (Going deeper with Image Transformers), ICCV 2021  [<b>bib</b>]
-</summary>
+Here, I have build an interface and add some naive methods for add sparsity into the ViT.
 
-```
-@InProceedings{Touvron_2021_ICCV,
-    author    = {Touvron, Hugo and Cord, Matthieu and Sablayrolles, Alexandre and Synnaeve, Gabriel and J\'egou, Herv\'e},
-    title     = {Going Deeper With Image Transformers},
-    booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
-    month     = {October},
-    year      = {2021},
-    pages     = {32-42}
-}
-```
-</details>
-<details>
-<summary>
-<a href="README_resmlp.md">ResMLP</a> (ResMLP: Feedforward networks for image classification with data-efficient training), TPAMI 2022 [<b>bib</b>]
-</summary>
 
-```
-@article{touvron2021resmlp,
-  title={ResMLP: Feedforward networks for image classification with data-efficient training},
-  author={Hugo Touvron and Piotr Bojanowski and Mathilde Caron and Matthieu Cord and Alaaeldin El-Nouby and Edouard Grave and Gautier Izacard and Armand Joulin and Gabriel Synnaeve and Jakob Verbeek and Herv'e J'egou},
-  journal={arXiv preprint arXiv:2105.03404},
-  year={2021},
-}
-```
-</details>
-<details>
-<summary>
-<a href="README_patchconvnet.md">PatchConvnet</a> (Augmenting Convolutional networks with attention-based aggregation) [<b>bib</b>]
-</summary>
+## Support Sparsity Searching Algorithm
+Currently, we support the following sparsity strategy:
++ `lamp` : pruning via lamp score [paper](https://arxiv.org/abs/2010.07611)
++ `glob` : global pruning 
++ `unif` : uniform pruning
++ `unifplus` : uniform pruning with some specific modificaiton (i.e. no pruning the first and last layer)
++ `erk` : Erdos-Renyi-Kernel [paper](https://arxiv.org/pdf/1911.11134.pdf)
 
-```
-@article{touvron2021patchconvnet,
-  title={Augmenting Convolutional networks with attention-based aggregation},
-  author={Hugo Touvron and Matthieu Cord and Alaaeldin El-Nouby and Piotr Bojanowski and Armand Joulin and Gabriel Synnaeve and Jakob Verbeek and Herve Jegou},
-  journal={arXiv preprint arXiv:2112.13692},
-  year={2021},
-}
-```
-</details>
-<details>
-<summary>
-<a href="README_3things.md">3Things</a> (Three things everyone should know about Vision Transformers), ECCV 2022 [<b>bib</b>]
-</summary>
+All of the support sparsity algorithm can be found in `./sparsity_factory/pruners.py`. 
 
-```
-@article{Touvron2022ThreeTE,
-  title={Three things everyone should know about Vision Transformers},
-  author={Hugo Touvron and Matthieu Cord and Alaaeldin El-Nouby and Jakob Verbeek and Herve Jegou},
-  journal={arXiv preprint arXiv:2203.09795},
-  year={2022},
-}
-```
-</details>
-<details>
-<summary>
-<a href="README_revenge.md">DeiT III</a> (DeiT III: Revenge of the ViT), ECCV 2022 [<b>bib</b>]
-</summary>
+The abovementioned methods will calculate the layer wise sparsity automatically once given the global target sparsity. In the following section, we will demonstrate how to use a custom designed sparsity level to sparsify the model
 
+## Use custom layer-wise Sparsity
+
+We can provide a custom config that define the target sparsity of each layer. 
+Currently, we support two kind of sparsity including `nxm` and `unstructuted`.
+User can create a `yaml` file the descibe the detail and pass into the main function by add the `--custom-config [path to config file]` argument when you call the `main.py`
+
+## Example Usage
+To run a DeiT-S with custom configuration and eval the accuracy before finetuning
 ```
-@article{Touvron2022DeiTIR,
-  title={DeiT III: Revenge of the ViT},
-  author={Hugo Touvron and Matthieu Cord and Herve Jegou},
-  journal={arXiv preprint arXiv:2204.07118},
-  year={2022},
-}
+python main.py \ 
+--model deit_small_patch16_224 \
+--data-path [Path to imagenet] \
+--output_dir [Path to output directory] \
+--eval  \
+--pruner custom \
+--custom-config configs/deit_small_nxm.yaml
 ```
-</details>
 
-If you find this repository useful, please consider giving a star ⭐ and cite the relevant papers. 
+To finetune the DeiT-S with custom configuration
+```
+python main.py \ 
+--model deit_small_patch16_224 \
+--data-path [Path to imagenet] \
+--output_dir [Path to output directory] \
+--pruner custom \
+--custom-config configs/deit_small_nxm.yaml
+```
 
-# License
-This repository is released under the Apache 2.0 license as found in the [LICENSE](LICENSE) file.
 
-# Contributing
-We actively welcome your pull requests! Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](.github/CODE_OF_CONDUCT.md) for more info.
+To use the algorithm to calculate the layer-sparsity and finetune given the global target sparsity to be 65%
+```
+python main.py \ 
+--model deit_small_patch16_224 \
+--data-path [Path to imagenet] \
+--output_dir [Path to output directory] \
+--pruner lamp \
+--sparsity 65
+```
+
+
+
+
+
+
