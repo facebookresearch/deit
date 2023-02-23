@@ -25,8 +25,7 @@ def weight_pruner_loader(pruner_string):
         return prune_weights_from_config
     else:
         raise ValueError('Unknown pruner')
-
-        
+    
 """
 prune_weights_reparam: Allocate identity mask to every weight tensors.
 prune_weights_l1predefined: Perform layerwise pruning w.r.t. given amounts.
@@ -41,13 +40,13 @@ def prune_weights_semistructured(module, configs=None):
     """
     def compute_mask(t, N, M):
         out_channel, in_channel = t.shape
-        percentile = M / N
-        t_reshaped = t.reshape(out_channel, -1, N)
+        percentile = N / M
+        t_reshaped = t.reshape(out_channel, -1, M)
         #print(t_reshaped.shape)
         mask = torch.ones_like(t)
-        mask_reshaped = mask.reshape(out_channel, -1, N)
+        mask_reshaped = mask.reshape(out_channel, -1, M)
         
-        nparams_topprune = int(N * percentile) 
+        nparams_topprune = int(M * percentile) 
         if nparams_topprune != 0:
             topk = torch.topk(torch.abs(t_reshaped), k=nparams_topprune, largest=False, dim = -1)
             #print(topk.indices)
