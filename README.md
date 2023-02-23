@@ -53,7 +53,7 @@ python main.py \
 --data-path [Path to imagenet] \
 --output_dir [Path to output directory] \
 --pruner lamp \
---sparsity 65
+--sparsity 0.65
 ```
 
 
