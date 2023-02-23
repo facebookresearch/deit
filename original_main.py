@@ -7,8 +7,6 @@ import time
 import torch
 import torch.backends.cudnn as cudnn
 import json
-import yaml
-from yaml.loader import SafeLoader
 
 from pathlib import Path
 
@@ -30,7 +28,6 @@ import models_v2
 
 import utils
 
-from sparsity_factory.pruners import weight_pruner_loader, prune_weights_reparam, check_valid_pruner
 
 def get_args_parser():
     parser = argparse.ArgumentParser('DeiT training and evaluation script', add_help=False)
@@ -51,7 +48,7 @@ def get_args_parser():
 
     parser.add_argument('--model-ema', action='store_true')
     parser.add_argument('--no-model-ema', action='store_false', dest='model_ema')
-    parser.set_defaults(model_ema=False)
+    parser.set_defaults(model_ema=True)
     parser.add_argument('--model-ema-decay', type=float, default=0.99996, help='')
     parser.add_argument('--model-ema-force-cpu', action='store_true', default=False, help='')
 
@@ -184,11 +181,6 @@ def get_args_parser():
     parser.add_argument('--world_size', default=1, type=int,
                         help='number of distributed processes')
     parser.add_argument('--dist_url', default='env://', help='url used to set up distributed training')
-
-    # sparsity parameters
-    parser.add_argument('--pruner', type=str, help='pruning criterion')
-    parser.add_argument('--sparsity', type=float, default=1.0, help = 'the sparisty level (ratio of unpruned weight)')
-    parser.add_argument('--custom-config', type=str, help='customized configuration of sparsity level for each linear layer')
     return parser
 
 
@@ -266,7 +258,7 @@ def main(args):
     print(f"Creating model: {args.model}")
     model = create_model(
         args.model,
-        pretrained=True,
+        pretrained=False,
         num_classes=args.nb_classes,
         drop_rate=args.drop,
         drop_path_rate=args.drop_path,
@@ -275,26 +267,6 @@ def main(args):
     )
 
 
-    
-    if args.pruner == 'custom':
-        if args.custom_config:
-            with open(args.custom_config) as f:
-                config = yaml.load(f, Loader=SafeLoader)  
-        else:
-            raise ValueError("Please provide the configuration file when using the custom mode")
-        
-        mode = config['sparsity']['mode']
-        sparsity_config = config['sparsity']['level']
-
-        pruner = weight_pruner_loader(args.pruner)
-        pruner(model, mode, sparsity_config)
-    elif check_valid_pruner(args.pruner):
-        pruner = weight_pruner_loader(args.pruner)
-        prune_weights_reparam(model)
-        pruner(model, args.sparsity)
-    else:
-        raise ValueError(f"Pruner '{args.pruner}' is not supported")
-    
 
 
     if args.finetune:
@@ -464,6 +436,7 @@ def main(args):
                     'optimizer': optimizer.state_dict(),
                     'lr_scheduler': lr_scheduler.state_dict(),
                     'epoch': epoch,
+                    'model_ema': get_state_dict(model_ema),
                     'scaler': loss_scaler.state_dict(),
                     'args': args,
                 }, checkpoint_path)
@@ -482,6 +455,7 @@ def main(args):
                         'optimizer': optimizer.state_dict(),
                         'lr_scheduler': lr_scheduler.state_dict(),
                         'epoch': epoch,
+                        'model_ema': get_state_dict(model_ema),
                         'scaler': loss_scaler.state_dict(),
                         'args': args,
                     }, checkpoint_path)
