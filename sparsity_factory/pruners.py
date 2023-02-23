@@ -29,6 +29,7 @@ def weight_pruner_loader(pruner_string):
 """
 prune_weights_reparam: Allocate identity mask to every weight tensors.
 prune_weights_l1predefined: Perform layerwise pruning w.r.t. given amounts.
+prune_weights_semistructured: Perform layerwise N:M pruning w.r.t. given configuration (keep N weights out of M consecutive ones)
 """
 
 def prune_weights_semistructured(module, configs=None):
