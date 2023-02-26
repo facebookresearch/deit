@@ -5,7 +5,7 @@ import numpy as np
 
 ALL_PRUNERS = ['lamp', 'glob', 'unif', 'unifplus', 'erk', 'custom']
 def check_valid_pruner(name):
-    return check_valid_pruner in ALL_PRUNERS
+    return name in ALL_PRUNERS
 
 def weight_pruner_loader(pruner_string):
     """
