@@ -186,7 +186,7 @@ class EvolutionSearcher():
             for idx in range(len(self.sparsity_config)):
                 random_s = random.random()
                 if random_s < m_prob:
-                    cand[idx] = random.choice(self.sparsity_config[idx])
+                    cand[idx] = tuple(random.choice(self.sparsity_config[idx]))
                     
             return tuple(cand)
 
@@ -294,7 +294,8 @@ def get_args_parser():
     parser.add_argument('--min-param-limits', type=float, default=5)
     parser.add_argument('--output_dir', default='',
                         help='path where to save, empty for no saving')
-    parser.add_argument('--num_workers', default=4, type=int)
+    parser.add_argument('--num_workers', default=16, type=int)
+    parser.add_argument('--dist-eval', action='store_true', default=False, help='Enabling distributed evaluation')
     parser.add_argument('--input-size', default=224, type=int, help='images input size')
     parser.add_argument('--data-path', default='/datasets01/imagenet_full_size/061417/', type=str,
                         help='dataset path')
@@ -336,7 +337,18 @@ def main(args):
     '''
 
     dataset_val, _ = build_dataset(is_train=False, args=args)
-    sampler_val = torch.utils.data.SequentialSampler(dataset_val)
+    if True:  # args.distributed:
+        num_tasks = utils.get_world_size()
+        global_rank = utils.get_rank()
+        if args.dist_eval:
+            if len(dataset_val) % num_tasks != 0:
+                print('Warning: Enabling distributed evaluation with an eval dataset not divisible by process number. '
+                      'This will slightly alter validation results as extra duplicate entries are added to achieve '
+                      'equal num of samples per-process.')
+            sampler_val = torch.utils.data.DistributedSampler(
+                dataset_val, num_replicas=num_tasks, rank=global_rank, shuffle=False)
+        else:
+            sampler_val = torch.utils.data.SequentialSampler(dataset_val)
 
     data_loader_val = torch.utils.data.DataLoader(
         dataset_val, batch_size=int(2 * args.batch_size),
@@ -382,4 +394,4 @@ if __name__ == '__main__':
 
 
 # CUDA_VISIBLE_DEVICES=3 python evolution_svd.py --data-path /dev/shm/imagenet/ --output_dir BASE_EA_13_16.5 --config sparsity_config/Vit_imnet_config_base.json --model deit_dist_base_p16_224_imnet_0416_wo_fc/checkpoint.pth --param-limits 16.5 --min-param-limits 13
-#python evolution_search.py --data-path /work/shadowpa0327/imagenet --output_dir deit_small_nxm_ea_124 --sparsity-config configs/deit_small_nxm_ea124.yml --model Sparse_deit_small_patch16_224 --param-limits 13.2 --min-param-limits 8
+#python -m torch.distributed.launch --nproc_per_node=2 evolution_search.py --data-path /home/yysung/imagenet --output_dir deit_small_nxm_ea_124 --sparsity-config configs/deit_small_nxm_ea124.yml --model Sparse_deit_small_patch16_224 --param-limits 13.2 --min-param-limits 8
