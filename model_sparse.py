@@ -313,7 +313,6 @@ class SparseVisionTransformer(nn.Module):
 
     def set_sample_config(self, sparse_configs):
         for ratio, layer in zip(sparse_configs, filter(lambda x: isinstance(x, SparseLinearSuper), self.modules())):
-            #print(ratio, layer)
             layer.set_sample_config(ratio)
 
     def set_random_config_fn(self, fn):
