@@ -27,7 +27,8 @@ from augment import new_data_aug_generator
 
 import models
 import models_v2
-
+import model_sparse
+import random
 import utils
 
 from sparsity_factory.pruners import weight_pruner_loader, prune_weights_reparam, check_valid_pruner
@@ -173,7 +174,7 @@ def get_args_parser():
     parser.add_argument('--eval', action='store_true', help='Perform evaluation only')
     parser.add_argument('--eval-crop-ratio', default=0.875, type=float, help="Crop ratio for evaluation")
     parser.add_argument('--dist-eval', action='store_true', default=False, help='Enabling distributed evaluation')
-    parser.add_argument('--num_workers', default=10, type=int)
+    parser.add_argument('--num_workers', default=16, type=int)
     parser.add_argument('--pin-mem', action='store_true',
                         help='Pin CPU memory in DataLoader for more efficient (sometimes) transfer to GPU.')
     parser.add_argument('--no-pin-mem', action='store_false', dest='pin_mem',
@@ -185,12 +186,23 @@ def get_args_parser():
                         help='number of distributed processes')
     parser.add_argument('--dist_url', default='env://', help='url used to set up distributed training')
 
-    # sparsity parameters
-    parser.add_argument('--pruner', type=str, help='pruning criterion')
-    parser.add_argument('--sparsity', type=float, default=1.0, help = 'the sparisty level (ratio of unpruned weight)')
-    parser.add_argument('--custom-config', type=str, help='customized configuration of sparsity level for each linear layer')
+    # Sparsity Training Related Flag
+    parser.add_argument('--nas-config', type=str, help='configuration for supernet training')
+    parser.add_argument('--nas-mode', action='store_true')
     return parser
 
+
+def gen_random_config_fn(config):
+    if utils.get_rank() == 0 : # print whether to use non_unifrom at initialization at main process
+        print(f"Set up the uniform sampling function")
+    def _fn_uni():
+        def weights(ratios):
+            return [1 for _ in ratios]
+        res = []
+        for ratios in config['sparsity']['choices']:
+            res.append(random.choices(ratios, weights(ratios))[0])
+        return res
+    return _fn_uni
 
 def main(args):
     utils.init_distributed_mode(args)
@@ -262,7 +274,10 @@ def main(args):
             mixup_alpha=args.mixup, cutmix_alpha=args.cutmix, cutmix_minmax=args.cutmix_minmax,
             prob=args.mixup_prob, switch_prob=args.mixup_switch_prob, mode=args.mixup_mode,
             label_smoothing=args.smoothing, num_classes=args.nb_classes)
-
+    
+    with open(args.nas_config) as f:
+        nas_config = yaml.load(f, Loader=SafeLoader)  
+    
     print(f"Creating model: {args.model}")
     model = create_model(
         args.model,
@@ -273,29 +288,6 @@ def main(args):
         drop_block_rate=None,
         img_size=args.input_size
     )
-
-
-    
-    if args.pruner == 'custom':
-        if args.custom_config:
-            with open(args.custom_config) as f:
-                config = yaml.load(f, Loader=SafeLoader)  
-        else:
-            raise ValueError("Please provide the configuration file when using the custom mode")
-        
-        mode = config['sparsity']['mode']
-        sparsity_config = config['sparsity']['level']
-
-        pruner = weight_pruner_loader(args.pruner)
-        pruner(model, mode, sparsity_config)
-    elif check_valid_pruner(args.pruner):
-        pruner = weight_pruner_loader(args.pruner)
-        prune_weights_reparam(model)
-        pruner(model, args.sparsity)
-    else:
-        raise ValueError(f"Pruner '{args.pruner}' is not supported")
-    
-
 
     if args.finetune:
         if args.finetune.startswith('https'):
@@ -370,6 +362,15 @@ def main(args):
     if args.distributed:
         model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
         model_without_ddp = model.module
+    
+    if args.nas_mode:
+        smallest_config = []
+        for ratios in nas_config['sparsity']['choices']:
+            smallest_config.append(ratios[0])
+        model_without_ddp.set_random_config_fn(gen_random_config_fn(nas_config))
+        model_without_ddp.set_sample_config(smallest_config)    
+        
+
     n_parameters = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print('number of params:', n_parameters)
     if not args.unscale_lr:
@@ -492,9 +493,6 @@ def main(args):
                      **{f'test_{k}': v for k, v in test_stats.items()},
                      'epoch': epoch,
                      'n_parameters': n_parameters}
-
-
-
 
         if args.output_dir and utils.is_main_process():
             with (output_dir / "log.txt").open("a") as f:

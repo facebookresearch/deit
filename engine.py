@@ -28,6 +28,8 @@ def train_one_epoch(model: torch.nn.Module, criterion: DistillationLoss,
     print_freq = 10
 
     for samples, targets in metric_logger.log_every(data_loader, print_freq, header):
+        if args.nas_mode:
+            model.module.set_random_sample_config()
         samples = samples.to(device, non_blocking=True)
         targets = targets.to(device, non_blocking=True)
 
