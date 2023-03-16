@@ -88,7 +88,7 @@ class EvolutionSearcher():
         self.top_accuracies = []
         self.cand_params = []
         self.sparsity_config = config['sparsity']['choices']
-        
+        self.only_sample = True if args.only_sample else False
         self.rcg = RandomCandGenerator(self.sparsity_config)
 
     def save_checkpoint(self):
@@ -241,7 +241,12 @@ class EvolutionSearcher():
 
         # self.load_checkpoint()
 
+
+
         self.get_random(self.population_num)
+        if self.only_sample:
+            self.save_checkpoint()
+            return
 
         while self.epoch < self.max_epochs:
             print('epoch = {}'.format(self.epoch))
@@ -282,6 +287,7 @@ def get_args_parser():
     # data-params
     
     # evolution search parameters
+    parser.add_argument('--only-sample', action='store_true', help='Only do the sampling no crossover and mutation.')
     parser.add_argument('--max-epochs', type=int, default=20)
     parser.add_argument('--select-num', type=int, default=10)
     parser.add_argument('--population-num', type=int, default=50)
@@ -315,7 +321,7 @@ def get_args_parser():
 
     # Sparsity correlated arguments
     parser.add_argument('--sparsity-config', default='', type=str, help='path to the sparsity yaml file')
-
+    parser.add_argument('--supernet-weight', default='', type=str, help='path to the trained supernet')
     return parser
 
 def main(args):
@@ -369,6 +375,11 @@ def main(args):
         drop_path_rate=0,
         img_size=args.input_size
     )
+
+    if args.supernet_weight:
+        print(f"Supernet Path is provided {args.supernet_weight}, load weight!")
+        weight = torch.load(args.supernet_weight, map_location = 'cpu')
+        model.load_state_dict(weight['model'])
     
     model.cuda()
     
