@@ -37,7 +37,7 @@ from sparsity_factory.pruners import weight_pruner_loader, prune_weights_reparam
 def get_args_parser():
     parser = argparse.ArgumentParser('DeiT training and evaluation script', add_help=False)
     parser.add_argument('--batch-size', default=128, type=int)
-    parser.add_argument('--epochs', default=300, type=int)
+    parser.add_argument('--epochs', default=100, type=int)
     parser.add_argument('--bce-loss', action='store_true')
     parser.add_argument('--unscale-lr', action='store_true')
 
@@ -186,7 +186,7 @@ def get_args_parser():
     # Sparsity Training Related Flag
     parser.add_argument('--model', default='Sparse_deit_small_patch16_224', type=str, metavar='MODEL',
                         help='Name of model to train')
-    parser.add_argument('--nas-config', type=str, default='configs/deit_small_nxm_ea124_9.0M.yml', help='configuration for supernet training')
+    parser.add_argument('--nas-config', type=str, default='configs/deit_small_nxm_ea124_9.0M.yaml', help='configuration for supernet training')
     parser.add_argument('--nas-mode', action='store_true', default=True)
     parser.add_argument('--nas-weights', default='weights/nas_pretrained.pth', help='load pretrained supernet weight')
     parser.add_argument('--wandb', action='store_true')
@@ -370,22 +370,11 @@ def main(args):
             resume='')
 
 
-    ## Add ASP to model (apex)
-    one_ll = model.blocks[0].attn.proj.weight
-    ASP.init_model_for_pruning(model, "m4n2_1d", whitelist=[torch.nn.Linear, torch.nn.Conv2d], allow_recompute_mask=True)
-    # ASP.init_optimizer_for_pruning(optimizer)
-    print("DENSE :: ", one_ll)
-    ASP.compute_sparse_masks()
-    print("SPARSE :: ", one_ll)
-    return
     
     model_without_ddp = model
     if args.distributed:
         model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
         model_without_ddp = model.module
-    
-    print(model_without_ddp)
-    
     if args.nas_mode:
         smallest_config = []
         for ratios in nas_config['sparsity']['choices']:
