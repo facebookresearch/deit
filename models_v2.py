@@ -180,7 +180,7 @@ class vit_models(nn.Module):
                  Patch_layer=PatchEmbed,act_layer=nn.GELU,
                  Attention_block = Attention, Mlp_block=Mlp,
                 dpr_constant=True,init_scale=1e-4,
-                mlp_ratio_clstk = 4.0):
+                mlp_ratio_clstk = 4.0,**kwargs):
         super().__init__()
         
         self.dropout_rate = drop_rate
