@@ -90,7 +90,20 @@ This repository contains PyTorch evaluation code, training code and pretrained m
 }
 ```
 </details>
+<details>
+<summary>
+<a href="README_cosub.md">Cosub</a> (Co-training 2L Submodels for Visual Recognition), CVPR 2023 [<b>bib</b>]
+</summary>
 
+```
+@article{Touvron2022Cotraining2S,
+  title={Co-training 2L Submodels for Visual Recognition},
+  author={Hugo Touvron and Matthieu Cord and Maxime Oquab and Piotr Bojanowski and Jakob Verbeek and Herv'e J'egou},
+  journal={arXiv preprint arXiv:2212.04884},
+  year={2022},
+}
+```
+</details>
 If you find this repository useful, please consider giving a star ⭐ and cite the relevant papers. 
 
 # License
