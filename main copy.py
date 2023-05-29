@@ -28,8 +28,6 @@ import models_v2
 
 import utils
 
-import wandb
-
 
 def get_args_parser():
     parser = argparse.ArgumentParser('DeiT training and evaluation script', add_help=False)
@@ -194,10 +192,6 @@ def main(args):
     utils.init_distributed_mode(args)
 
     print(args)
-
-    wandb.init(config=args,
-               project='deit-s-secondorder',
-               name='deit-s-baseline',)
 
     if args.distillation_type != 'none' and args.finetune and not args.eval:
         raise NotImplementedError("Finetuning with distillation not yet supported")
@@ -423,9 +417,6 @@ def main(args):
     print(f"Start training for {args.epochs} epochs")
     start_time = time.time()
     max_accuracy = 0.0
-
-    wandb.watch(model, log='all')
-
     for epoch in range(args.start_epoch, args.epochs):
         if args.distributed:
             data_loader_train.sampler.set_epoch(epoch)
@@ -478,7 +469,7 @@ def main(args):
                      'epoch': epoch,
                      'n_parameters': n_parameters}
         
-        wandb.log(log_stats)
+        
         
         
         if args.output_dir and utils.is_main_process():
