@@ -30,6 +30,11 @@ import utils
 
 import wandb
 
+import os
+os.environ['WANDB_DIR'] = os.getcwd() + "/wandb/"
+os.environ['WANDB_CACHE_DIR'] = os.getcwd() + "/wandb/.cache/"
+os.environ['WANDB_CONFIG_DIR'] = os.getcwd() + "/wandb/.config/"
+
 
 def get_args_parser():
     parser = argparse.ArgumentParser('DeiT training and evaluation script', add_help=False)
