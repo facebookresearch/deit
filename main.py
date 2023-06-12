@@ -449,7 +449,7 @@ def main(args):
                 loss_scaler.load_state_dict(checkpoint['scaler'])
         lr_scheduler.step(args.start_epoch)
     if args.eval:
-        test_stats = evaluate(data_loader_val, model, device)
+        test_stats = evaluate(nas_config, data_loader_val, model, device)
         print(f"Accuracy of the network on the {len(dataset_val)} test images: {test_stats['acc1']:.1f}%")
         return
 
@@ -482,7 +482,7 @@ def main(args):
                 }, checkpoint_path)
 
 
-        test_stats = evaluate(data_loader_val, model, device)
+        test_stats = evaluate(nas_config, data_loader_val, model, device)
 
         print(f"Accuracy of the network on the {len(dataset_val)} test images: {test_stats['acc1']:.1f}%")
         if wandb and wandb.run:
