@@ -78,8 +78,8 @@ def evaluate(nas_config, data_loader, model, device):
     # Sample the smallest subnetwork to test accuracy
     smallest_config = []
     for ratios in nas_config['sparsity']['choices']:
-        # smallest_config.append(ratios[0])
-        smallest_config.append([1, 3])
+        smallest_config.append(ratios[0])
+        # smallest_config.append([1, 3])
     model.module.set_sample_config(smallest_config)
     print(f'Evaluate Config: {smallest_config[0]}')
 
