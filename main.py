@@ -142,22 +142,22 @@ def get_args_parser():
                         help='How to apply mixup/cutmix params. Per "batch", "pair", or "elem"')
 
     # Distillation parameters
-    parser.add_argument('--teacher-model', default='regnety_160', type=str, metavar='MODEL',
-                        help='Name of teacher model to train (default: "regnety_160"')
-    parser.add_argument('--teacher-path', type=str, default='')
-    parser.add_argument('--distillation-type', default='none', choices=['none', 'soft', 'hard'], type=str, help="")
-    parser.add_argument('--distillation-alpha', default=0.5, type=float, help="")
-    # parser.add_argument('--distillation-alpha', default=0, type=float, help="")
+    # parser.add_argument('--teacher-model', default='regnety_160', type=str, metavar='MODEL',
+    #                     help='Name of teacher model to train (default: "regnety_160"')
+    parser.add_argument('--teacher-model', default='deit_small_patch16_224', type=str, metavar='MODEL')
+    parser.add_argument('--teacher-path', type=str, default=None)
+    # parser.add_argument('--distillation-type', default='none', choices=['none', 'soft', 'hard'], type=str, help="")
+    parser.add_argument('--distillation-type', default='soft', choices=['none', 'soft', 'hard'], type=str, help="")
+    # parser.add_argument('--distillation-alpha', default=0.5, type=float, help="")
+    parser.add_argument('--distillation-alpha', default=0.0, type=float, help="")
     parser.add_argument('--distillation-tau', default=1.0, type=float, help="")
 
     # * Finetuning params
-    # parser.add_argument('--finetune', default='weights/deit_small_patch16_224-cd65a155.pth', help='finetune from checkpoint')
-    # parser.add_argument('--finetune', default='https://dl.fbaipublicfiles.com/deit/deit_small_patch16_224-cd65a155.pth', help='finetune from checkpoint')
     parser.add_argument('--finetune', default=None, help='finetune from checkpoint')
     parser.add_argument('--attn-only', action='store_true')
 
     # Dataset parameters
-    parser.add_argument('--data-path', default='/dev/shm/imagenet', type=str,
+    parser.add_argument('--data-path', default='/dataset/imagenet', type=str,
                         help='dataset path')
     parser.add_argument('--data-set', default='IMNET', choices=['CIFAR', 'IMNET', 'INAT', 'INAT19'],
                         type=str, help='Image Net dataset path')
@@ -193,19 +193,20 @@ def get_args_parser():
     # python -m torch.distributed.launch --nproc_per_node=8 --use_env --master_port 29500 main.py --nas-config configs/deit_small_nxm_uniform14.yaml --epochs 50 --output_dir result_sub_1:4_50epoch
     # python -m torch.distributed.launch --nproc_per_node=8 --use_env --master_port 29501 main.py --nas-config configs/deit_small_nxm_uniform24.yaml --epochs 50 --output_dir result_sub_2:4_50epoch
     # python -m torch.distributed.launch --nproc_per_node=8 --use_env --master_port 29501 main.py --nas-config configs/deit_small_nxm_uniform14.yaml --eval
+    # python -m torch.distributed.launch --nproc_per_node=8 --use_env main.py --epochs 150 --nas-config configs/deit_small_nxm_nas_124+13.yaml --output_dir twined_nas_124+13_150epoch
     parser.add_argument('--model', default='Sparse_deit_small_patch16_224', type=str, metavar='MODEL',
                         help='Name of model to train')
     parser.add_argument('--nas-config', type=str, default='configs/deit_small_nxm_nas_124.yaml', help='configuration for supernet training')
     parser.add_argument('--nas-mode', action='store_true', default=True)
     # parser.add_argument('--nas-weights', default='weights/nas_pretrained.pth', help='load pretrained supernet weight')
     # parser.add_argument('--nas-weights', default='result_nas_1:4_150epoch/checkpoint.pth', help='load pretrained supernet weight')
+    # parser.add_argument('--nas-weights', default='result_sub_1:4_50epoch/best_checkpoint.pth', help='load pretrained supernet weight')
+    # parser.add_argument('--nas-weights', default='result_sub_2:4_50epoch/best_checkpoint.pth', help='load pretrained supernet weight')
     # parser.add_argument('--nas-weights', default='result_nas_124+13_150epoch/checkpoint.pth', help='load pretrained supernet weight')
-    # parser.add_argument('--nas-weights', default='result_nas_124_150epoch/best_checkpoint.pth', help='load pretrained supernet weight')
-    # parser.add_argument('--nas-weights', default='result_sub_14_50epoch/best_checkpoint.pth', help='load pretrained supernet weight')
-    parser.add_argument('--nas-weights', default='result_sub_24_50epoch/best_checkpoint.pth', help='load pretrained supernet weight')
     # parser.add_argument('--nas-weights', default='result_nas_124+13_150epoch/best_checkpoint.pth', help='load pretrained supernet weight')
-    # parser.add_argument('--nas-weights', default=None, help='load pretrained supernet weight')
-    parser.add_argument('--wandb', action='store_true', default=True)
+    # parser.add_argument('--nas-weights', default='result_1:8_100epoch/best_checkpoint.pth', help='load pretrained supernet weight')
+    parser.add_argument('--nas-weights', default=None, help='load pretrained supernet weight')
+    parser.add_argument('--wandb', action='store_true')
     parser.add_argument('--output_dir', default='result',
                         help='path where to save, empty for no saving')
     return parser
@@ -427,20 +428,30 @@ def main(args):
 
     teacher_model = None
     if args.distillation_type != 'none':
-        assert args.teacher_path, 'need to specify teacher-path when using distillation'
+        # assert args.teacher_path, 'need to specify teacher-path when using distillation'
         print(f"Creating teacher model: {args.teacher_model}")
-        teacher_model = create_model(
-            args.teacher_model,
-            pretrained=False,
-            num_classes=args.nb_classes,
-            global_pool='avg',
-        )
-        if args.teacher_path.startswith('https'):
-            checkpoint = torch.hub.load_state_dict_from_url(
+        # teacher_model = create_model( // regnety160
+        #     args.teacher_model,
+        #     pretrained=False,
+        #     num_classes=args.nb_classes,
+        #     global_pool='avg',
+        # )
+        teacher_model = create_model( # deit-small
+        args.teacher_model,
+        pretrained=True,
+        num_classes=args.nb_classes,
+        drop_rate=args.drop,
+        drop_path_rate=args.drop_path,
+        drop_block_rate=None,
+        img_size=args.input_size
+    )
+        if args.teacher_path:
+            if args.teacher_path.startswith('https'):
+                checkpoint = torch.hub.load_state_dict_from_url(
                 args.teacher_path, map_location='cpu', check_hash=True)
-        else:
-            checkpoint = torch.load(args.teacher_path, map_location='cpu')
-        teacher_model.load_state_dict(checkpoint['model'])
+            else:
+                checkpoint = torch.load(args.teacher_path, map_location='cpu')
+            teacher_model.load_state_dict(checkpoint['model'])
         teacher_model.to(device)
         teacher_model.eval()
 

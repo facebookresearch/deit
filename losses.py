@@ -31,18 +31,20 @@ class DistillationLoss(torch.nn.Module):
                 in the first position and the distillation predictions as the second output
             labels: the labels for the base criterion
         """
-        outputs_kd = None
-        if not isinstance(outputs, torch.Tensor):
-            # assume that the model outputs a tuple of [outputs, outputs_kd]
-            outputs, outputs_kd = outputs
         base_loss = self.base_criterion(outputs, labels)
         if self.distillation_type == 'none':
             return base_loss
+        
+        outputs_kd = outputs # Use normal ViT version
+        # outputs_kd = None
+        # if not isinstance(outputs, torch.Tensor):
+        #     # assume that the model outputs a tuple of [outputs, outputs_kd]
+        #     outputs, outputs_kd = outputs
 
-        if outputs_kd is None:
-            raise ValueError("When knowledge distillation is enabled, the model is "
-                             "expected to return a Tuple[Tensor, Tensor] with the output of the "
-                             "class_token and the dist_token")
+        # if outputs_kd is None:
+        #     raise ValueError("When knowledge distillation is enabled, the model is "
+        #                      "expected to return a Tuple[Tensor, Tensor] with the output of the "
+        #                      "class_token and the dist_token")
         # don't backprop throught the teacher
         with torch.no_grad():
             teacher_outputs = self.teacher_model(inputs)

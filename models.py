@@ -87,15 +87,15 @@ default_cfgs = {
     'vit_base_resnet50d_224': _cfg(),
 }
 
-class LRMlpSuper(nn.Module):
+class MlpSuper(nn.Module):
     def __init__(self, in_features, hidden_features=None, out_features=None, act_layer=nn.GELU, drop=0.):
         super().__init__()
         out_features = out_features or in_features
         hidden_features = hidden_features or in_features
         self.act = act_layer()
         self.drop = nn.Dropout(drop)
-        self.fc1 = SparseLinearSuper(in_features, hidden_features)
-        self.fc2 = SparseLinearSuper(hidden_features, out_features)
+        self.fc1 = nn.Linear(in_features, hidden_features)
+        self.fc2 = nn.Linear(hidden_features, out_features)
 
     def forward(self, x):
         x = self.fc1(x)
@@ -105,15 +105,15 @@ class LRMlpSuper(nn.Module):
         x = self.drop(x)
         return x
 
-class LRAttentionSuper(nn.Module):
+class AttentionSuper(nn.Module):
     def __init__(self, dim, num_heads=8, qkv_bias=False, attn_drop=0., proj_drop=0.):
         super().__init__()
         self.num_heads = num_heads
         head_dim = dim // num_heads
         self.scale = head_dim ** -0.5
 
-        self.proj = SparseLinearSuper(dim, dim)
-        self.qkv = SparseLinearSuper(dim, dim * 3, bias = qkv_bias)
+        self.proj = nn.Linear(dim, dim)
+        self.qkv = nn.Linear(dim, dim * 3, bias = qkv_bias)
         self.attn_drop = nn.Dropout(attn_drop)
         self.proj_drop = nn.Dropout(proj_drop)
 
@@ -137,12 +137,12 @@ class Block(nn.Module):
                  drop_path=0., act_layer=nn.GELU, norm_layer=nn.LayerNorm):
         super().__init__()
         self.norm1 = norm_layer(dim)
-        self.attn = LRAttentionSuper(dim, num_heads=num_heads, qkv_bias=qkv_bias, attn_drop=attn_drop, proj_drop=drop, )
+        self.attn = AttentionSuper(dim, num_heads=num_heads, qkv_bias=qkv_bias, attn_drop=attn_drop, proj_drop=drop, )
         # NOTE: drop path for stochastic depth, we shall see if this is better than dropout here
         self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
         self.norm2 = norm_layer(dim)
         mlp_hidden_dim = int(dim * mlp_ratio)
-        self.mlp = LRMlpSuper(in_features=dim, hidden_features=mlp_hidden_dim, act_layer=act_layer, drop=drop)
+        self.mlp = MlpSuper(in_features=dim, hidden_features=mlp_hidden_dim, act_layer=act_layer, drop=drop)
 
     def forward(self, x):
         x = x + self.drop_path(self.attn(self.norm1(x)))
@@ -178,7 +178,7 @@ class PatchEmbed(nn.Module):
 
 
 
-class SparseVisionTransformer(nn.Module):
+class VisionTransformer(nn.Module):
     """ Vision Transformer
 
     A PyTorch impl of : `An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale`
@@ -323,7 +323,7 @@ def deit_base_patch16_224(pretrained=False, **kwargs):
     """ DeiT base model @ 224x224 from paper (https://arxiv.org/abs/2012.12877).
     ImageNet-1k weights from https://github.com/facebookresearch/deit.
     """
-    model =  SparseVisionTransformer(
+    model =  VisionTransformer(
         patch_size=16, embed_dim=768, depth=12, num_heads=12, mlp_ratio=4, qkv_bias=True,
         norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     model.default_cfg = _cfg()
@@ -342,7 +342,7 @@ def deit_small_patch16_224(pretrained=False, **kwargs):
     """ DeiT base model @ 224x224 from paper (https://arxiv.org/abs/2012.12877).
     ImageNet-1k weights from https://github.com/facebookresearch/deit.
     """
-    model =  SparseVisionTransformer(
+    model =  VisionTransformer(
         patch_size=16, embed_dim=384, depth=12, num_heads=6, mlp_ratio=4, qkv_bias=True,
         norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     model.default_cfg = _cfg()
@@ -360,7 +360,7 @@ def deit_tiny_patch16_224(pretrained=False, **kwargs):
     """ DeiT base model @ 224x224 from paper (https://arxiv.org/abs/2012.12877).
     ImageNet-1k weights from https://github.com/facebookresearch/deit.
     """
-    model =  SparseVisionTransformer(
+    model =  VisionTransformer(
         patch_size=16, embed_dim=192, depth=12, num_heads=3, mlp_ratio=4, qkv_bias=True,
         norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     model.default_cfg = _cfg()
