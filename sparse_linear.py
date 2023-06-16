@@ -40,6 +40,7 @@ class SparseLinearSuper(nn.Module):
             n, m = config
             if m not in m_list:
                 m_list.append(m)
+
         if len(m_list) == 1:
             self.nas_config_list = m_list
         else:
