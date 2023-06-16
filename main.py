@@ -147,10 +147,12 @@ def get_args_parser():
     parser.add_argument('--teacher-model', default='deit_small_patch16_224', type=str, metavar='MODEL')
     parser.add_argument('--teacher-path', type=str, default=None)
     # parser.add_argument('--distillation-type', default='none', choices=['none', 'soft', 'hard'], type=str, help="")
-    parser.add_argument('--distillation-type', default='soft', choices=['none', 'soft', 'hard'], type=str, help="")
+    parser.add_argument('--distillation-type', default='none', choices=['none', 'soft', 'soft_fd'], type=str, help="")
     # parser.add_argument('--distillation-alpha', default=0.5, type=float, help="")
     parser.add_argument('--distillation-alpha', default=0.0, type=float, help="")
     parser.add_argument('--distillation-tau', default=1.0, type=float, help="")
+    parser.add_argument('--distillation-gamma', default=0.1, type=float, 
+                        help="coefficient for hidden distillation loss, we set it to be 0.1 by aligning MiniViT")
 
     # * Finetuning params
     parser.add_argument('--finetune', default=None, help='finetune from checkpoint')
@@ -310,7 +312,7 @@ def main(args):
         drop_rate=args.drop,
         drop_path_rate=args.drop_path,
         drop_block_rate=None,
-        img_size=args.input_size
+        img_size=args.input_size,
     )
 
     # load nas pretrained weight
@@ -458,7 +460,7 @@ def main(args):
     # wrap the criterion in our custom DistillationLoss, which
     # just dispatches to the original criterion if args.distillation_type is 'none'
     criterion = DistillationLoss(
-        criterion, teacher_model, args.distillation_type, args.distillation_alpha, args.distillation_tau
+        criterion, teacher_model, args.distillation_type, args.distillation_alpha, args.distillation_tau, args.distillation_gamma
     )
 
     output_dir = Path(args.output_dir)
@@ -558,3 +560,15 @@ if __name__ == '__main__':
     if args.output_dir:
         Path(args.output_dir).mkdir(parents=True, exist_ok=True)
     main(args)
+
+
+"""
+python -m torch.distributed.launch \
+--nproc_per_node=1 \
+--use_env \
+--master_port 29501 \
+main.py \
+--nas-config configs/deit_small_nxm_nas_124+13.yaml \
+--data-path /work/shadowpa0327/imagenet \
+--distillation-type soft_fd 
+"""
