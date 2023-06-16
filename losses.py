@@ -17,7 +17,7 @@ class DistillationLoss(torch.nn.Module):
         super().__init__()
         self.base_criterion = base_criterion
         self.teacher_model = teacher_model
-        assert distillation_type in ['none', 'soft', 'hard']
+        assert distillation_type in ['none', 'soft', 'soft_fd']
         self.distillation_type = distillation_type
         self.alpha = alpha
         self.tau = tau
@@ -63,6 +63,9 @@ class DistillationLoss(torch.nn.Module):
             log_target=True
         ) * (T * T) / outputs.numel()
 
+        if self.distillation_type == 'soft':
+            return base_loss * (1 - self.alpha) + distillation_loss * self.alpha
+        
         # calculate hidden loss
         layer_num = len(student_hidden_list)
         hidden_loss = 0.
