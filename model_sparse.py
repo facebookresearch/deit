@@ -224,7 +224,6 @@ class SparseVisionTransformer(nn.Module):
         num_patches = self.patch_embed.num_patches
 
         self.cls_token = nn.Parameter(torch.zeros(1, 1, embed_dim))
-        self.dist_token = nn.Parameter(torch.zeros(1, 1, embed_dim)) if distilled else None
         self.pos_embed = nn.Parameter(torch.zeros(1, num_patches + self.num_tokens, embed_dim))
         self.pos_drop = nn.Dropout(p=drop_rate)
 
@@ -269,13 +268,11 @@ class SparseVisionTransformer(nn.Module):
 
     @torch.jit.ignore
     def no_weight_decay(self):
-        return {'pos_embed', 'cls_token', 'dist_token'}
+        return {'pos_embed', 'cls_token'}
 
     def get_classifier(self):
-        if self.dist_token is None:
-            return self.head
-        else:
-            return self.head, self.head_dist
+        return self.head
+
 
     def reset_classifier(self, num_classes, global_pool=''):
         self.num_classes = num_classes
@@ -286,17 +283,13 @@ class SparseVisionTransformer(nn.Module):
     def forward_features(self, x):
         x = self.patch_embed(x)
         cls_token = self.cls_token.expand(x.shape[0], -1, -1)  # stole cls_tokens impl from Phil Wang, thanks
-        if self.dist_token is None:
-            x = torch.cat((cls_token, x), dim=1)
-        else:
-            x = torch.cat((cls_token, self.dist_token.expand(x.shape[0], -1, -1), x), dim=1)
+        x = torch.cat((cls_token, x), dim=1)
         x = self.pos_drop(x + self.pos_embed)
         x = self.blocks(x)
         x = self.norm(x)
-        if self.dist_token is None:
-            return self.pre_logits(x[:, 0])
-        else:
-            return x[:, 0], x[:, 1]
+
+        return self.pre_logits(x[:, 0])
+
 
     def forward(self, x):
         x = self.forward_features(x)
@@ -329,6 +322,29 @@ class SparseVisionTransformer(nn.Module):
 
 
 
+class DistillSparseVisionTransformer(SparseVisionTransformer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+    
+    
+    def forward_features(self, x):
+        intermediate_outputs = []
+        
+        x = self.patch_embed(x)
+        cls_token = self.cls_token.expand(x.shape[0], -1, -1)  # stole cls_tokens impl from Phil Wang, thanks
+        x = torch.cat((cls_token, x), dim=1)
+        x = self.pos_drop(x + self.pos_embed)
+        for b in self.blocks():
+            intermediate_outputs.append(x)
+            x = b(x)
+        x = self.norm(x)
+        return self.pre_logits(x[:, 0]), intermediate_outputs
+
+
+    def forward(self, x):
+        x, intermediate_outputs = self.forward_features(x)
+        x = self.head(x)
+        return x, intermediate_outputs
 
 
 
