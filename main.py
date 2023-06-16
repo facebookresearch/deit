@@ -37,7 +37,7 @@ from sparsity_factory.pruners import weight_pruner_loader, prune_weights_reparam
 def get_args_parser():
     parser = argparse.ArgumentParser('DeiT training and evaluation script', add_help=False)
     parser.add_argument('--batch-size', default=128, type=int)
-    parser.add_argument('--epochs', default=100, type=int)
+    parser.add_argument('--epochs', default=150, type=int)
     parser.add_argument('--bce-loss', action='store_true')
     parser.add_argument('--unscale-lr', action='store_true')
 
@@ -71,7 +71,7 @@ def get_args_parser():
     # Learning rate schedule parameters
     parser.add_argument('--sched', default='cosine', type=str, metavar='SCHEDULER',
                         help='LR scheduler (default: "cosine"')
-    parser.add_argument('--lr', type=float, default=5e-4, metavar='LR',
+    parser.add_argument('--lr', type=float, default=5e-5, metavar='LR',
                         help='learning rate (default: 5e-4)')
     parser.add_argument('--lr-noise', type=float, nargs='+', default=None, metavar='pct, pct',
                         help='learning rate noise on/off epoch percentages')
@@ -81,7 +81,7 @@ def get_args_parser():
                         help='learning rate noise std-dev (default: 1.0)')
     parser.add_argument('--warmup-lr', type=float, default=1e-6, metavar='LR',
                         help='warmup learning rate (default: 1e-6)')
-    parser.add_argument('--min-lr', type=float, default=1e-5, metavar='LR',
+    parser.add_argument('--min-lr', type=float, default=1e-6, metavar='LR',
                         help='lower lr bound for cyclic schedulers that hit 0 (1e-5)')
 
     parser.add_argument('--decay-epochs', type=float, default=30, metavar='N',
@@ -147,14 +147,17 @@ def get_args_parser():
     parser.add_argument('--teacher-path', type=str, default='')
     parser.add_argument('--distillation-type', default='none', choices=['none', 'soft', 'hard'], type=str, help="")
     parser.add_argument('--distillation-alpha', default=0.5, type=float, help="")
+    # parser.add_argument('--distillation-alpha', default=0, type=float, help="")
     parser.add_argument('--distillation-tau', default=1.0, type=float, help="")
 
     # * Finetuning params
-    parser.add_argument('--finetune', default='', help='finetune from checkpoint')
+    # parser.add_argument('--finetune', default='weights/deit_small_patch16_224-cd65a155.pth', help='finetune from checkpoint')
+    # parser.add_argument('--finetune', default='https://dl.fbaipublicfiles.com/deit/deit_small_patch16_224-cd65a155.pth', help='finetune from checkpoint')
+    parser.add_argument('--finetune', default=None, help='finetune from checkpoint')
     parser.add_argument('--attn-only', action='store_true')
 
     # Dataset parameters
-    parser.add_argument('--data-path', default='/dataset/imagenet', type=str,
+    parser.add_argument('--data-path', default='/dev/shm/imagenet', type=str,
                         help='dataset path')
     parser.add_argument('--data-set', default='IMNET', choices=['CIFAR', 'IMNET', 'INAT', 'INAT19'],
                         type=str, help='Image Net dataset path')
@@ -184,12 +187,25 @@ def get_args_parser():
     parser.add_argument('--dist_url', default='env://', help='url used to set up distributed training')
 
     # Sparsity Training Related Flag
+    # timm == 0.4.12
+    # python -m torch.distributed.launch --nproc_per_node=8 --use_env main.py --epochs 150 --output_dir result_nas_1:4_150epoch_repeat
+    # python -m torch.distributed.launch --nproc_per_node=8 --use_env main.py --epochs 150 --nas-config configs/deit_small_nxm_nas_124+13.yaml --output_dir result_nas_124+13_150epoch
+    # python -m torch.distributed.launch --nproc_per_node=8 --use_env --master_port 29500 main.py --nas-config configs/deit_small_nxm_uniform14.yaml --epochs 50 --output_dir result_sub_1:4_50epoch
+    # python -m torch.distributed.launch --nproc_per_node=8 --use_env --master_port 29501 main.py --nas-config configs/deit_small_nxm_uniform24.yaml --epochs 50 --output_dir result_sub_2:4_50epoch
+    # python -m torch.distributed.launch --nproc_per_node=8 --use_env --master_port 29501 main.py --nas-config configs/deit_small_nxm_uniform14.yaml --eval
     parser.add_argument('--model', default='Sparse_deit_small_patch16_224', type=str, metavar='MODEL',
                         help='Name of model to train')
-    parser.add_argument('--nas-config', type=str, default='configs/deit_small_nxm_ea124_9.0M.yaml', help='configuration for supernet training')
+    parser.add_argument('--nas-config', type=str, default='configs/deit_small_nxm_nas_124.yaml', help='configuration for supernet training')
     parser.add_argument('--nas-mode', action='store_true', default=True)
-    parser.add_argument('--nas-weights', default='weights/nas_pretrained.pth', help='load pretrained supernet weight')
-    parser.add_argument('--wandb', action='store_true')
+    # parser.add_argument('--nas-weights', default='weights/nas_pretrained.pth', help='load pretrained supernet weight')
+    # parser.add_argument('--nas-weights', default='result_nas_1:4_150epoch/checkpoint.pth', help='load pretrained supernet weight')
+    # parser.add_argument('--nas-weights', default='result_nas_124+13_150epoch/checkpoint.pth', help='load pretrained supernet weight')
+    # parser.add_argument('--nas-weights', default='result_nas_124_150epoch/best_checkpoint.pth', help='load pretrained supernet weight')
+    # parser.add_argument('--nas-weights', default='result_sub_14_50epoch/best_checkpoint.pth', help='load pretrained supernet weight')
+    parser.add_argument('--nas-weights', default='result_sub_24_50epoch/best_checkpoint.pth', help='load pretrained supernet weight')
+    # parser.add_argument('--nas-weights', default='result_nas_124+13_150epoch/best_checkpoint.pth', help='load pretrained supernet weight')
+    # parser.add_argument('--nas-weights', default=None, help='load pretrained supernet weight')
+    parser.add_argument('--wandb', action='store_true', default=True)
     parser.add_argument('--output_dir', default='result',
                         help='path where to save, empty for no saving')
     return parser
@@ -209,6 +225,10 @@ def gen_random_config_fn(config):
 
 def main(args):
     utils.init_distributed_mode(args)
+
+    # wandb
+    if args.wandb and utils.is_main_process():
+        wandb.init(project='sparsity', entity='410011max', name=args.nas_config)
 
     print(args)
 
@@ -292,13 +312,11 @@ def main(args):
         img_size=args.input_size
     )
 
-    if args.wandb:
-        wandb.init(project='sparsity')
-
     # load nas pretrained weight
     if args.nas_weights:
         state_dict = torch.load(args.nas_weights)
         model.load_state_dict(state_dict['model'], strict=True)
+        print(f'Load NAS pretrained weight from {args.nas_weights}')
 
     if args.finetune:
         if args.finetune.startswith('https'):
@@ -335,6 +353,7 @@ def main(args):
         checkpoint_model['pos_embed'] = new_pos_embed
 
         model.load_state_dict(checkpoint_model, strict=False)
+        print(f'Load pretrained weight from {args.finetune}')
 
     if args.attn_only:
         for name_p,p in model.named_parameters():
@@ -370,11 +389,11 @@ def main(args):
             resume='')
 
 
-    
     model_without_ddp = model
     if args.distributed:
         model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
         model_without_ddp = model.module
+
     if args.nas_mode:
         smallest_config = []
         for ratios in nas_config['sparsity']['choices']:
@@ -449,7 +468,7 @@ def main(args):
                 loss_scaler.load_state_dict(checkpoint['scaler'])
         lr_scheduler.step(args.start_epoch)
     if args.eval:
-        test_stats = evaluate(data_loader_val, model, device)
+        test_stats = evaluate(nas_config, data_loader_val, model, device)
         print(f"Accuracy of the network on the {len(dataset_val)} test images: {test_stats['acc1']:.1f}%")
         return
 
@@ -482,14 +501,9 @@ def main(args):
                 }, checkpoint_path)
 
 
-        test_stats = evaluate(data_loader_val, model, device)
+        test_stats = evaluate(nas_config, data_loader_val, model, device)
 
         print(f"Accuracy of the network on the {len(dataset_val)} test images: {test_stats['acc1']:.1f}%")
-        if wandb and wandb.run:
-            wandb.log({**{f'train_{k}': v for k, v in train_stats.items()},
-                        **{f'test_{k}': v for k, v in test_stats.items()},
-                        'epoch': epoch,
-                        'n_parameters': n_parameters})
 
         if max_accuracy < test_stats["acc1"]:
             max_accuracy = test_stats["acc1"]
@@ -515,6 +529,12 @@ def main(args):
         if args.output_dir and utils.is_main_process():
             with (output_dir / "log.txt").open("a") as f:
                 f.write(json.dumps(log_stats) + "\n")
+                
+            if wandb and wandb.run:
+                wandb.log({**{f'train_{k}': v for k, v in train_stats.items()},
+                            **{f'test_{k}': v for k, v in test_stats.items()},
+                            'epoch': epoch,
+                            'n_parameters': n_parameters})
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
