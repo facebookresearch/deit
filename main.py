@@ -142,15 +142,19 @@ def get_args_parser():
                         help='How to apply mixup/cutmix params. Per "batch", "pair", or "elem"')
 
     # Distillation parameters
-    parser.add_argument('--teacher-model', default='regnety_160', type=str, metavar='MODEL',
-                        help='Name of teacher model to train (default: "regnety_160"')
-    parser.add_argument('--teacher-path', type=str, default='')
-    parser.add_argument('--distillation-type', default='none', choices=['none', 'soft', 'hard'], type=str, help="")
-    parser.add_argument('--distillation-alpha', default=0.5, type=float, help="")
+    # parser.add_argument('--teacher-model', default='regnety_160', type=str, metavar='MODEL',
+    #                     help='Name of teacher model to train (default: "regnety_160"')
+    parser.add_argument('--teacher-model', default='deit_small_patch16_224', type=str, metavar='MODEL')
+    parser.add_argument('--teacher-path', type=str, default=None)
+    # parser.add_argument('--distillation-type', default='none', choices=['none', 'soft', 'hard'], type=str, help="")
+    parser.add_argument('--distillation-type', default='none', choices=['none', 'soft', 'soft_fd'], type=str, help="")
+    # parser.add_argument('--distillation-alpha', default=0.5, type=float, help="")
+    parser.add_argument('--distillation-alpha', default=0.0, type=float, help="")
     parser.add_argument('--distillation-tau', default=1.0, type=float, help="")
+    parser.add_argument('--distillation-gamma', default=0.1, type=float, 
+                        help="coefficient for hidden distillation loss, we set it to be 0.1 by aligning MiniViT")
 
     # * Finetuning params
-    # parser.add_argument('--finetune', default='weights/deit_small_patch16_224-cd65a155.pth', help='finetune from checkpoint')
     parser.add_argument('--finetune', default=None, help='finetune from checkpoint')
     parser.add_argument('--attn-only', action='store_true')
 
@@ -186,17 +190,24 @@ def get_args_parser():
     # Sparsity Training Related Flag
     # timm == 0.4.12
     # python -m torch.distributed.launch --nproc_per_node=8 --use_env main.py --epochs 150 --output_dir result_nas_1:4_150epoch_repeat
-    # python -m torch.distributed.launch --nproc_per_node=8 --use_env main.py --epochs 150 --nas-config configs/deit_small_nxm_nas_124+13.yaml --output_dir twined_nas_124+13_150epoch
+    # python -m torch.distributed.launch --nproc_per_node=8 --use_env main.py --epochs 150 --nas-config configs/deit_small_nxm_nas_124+13.yaml --output_dir result_nas_124+13_150epoch
+    # python -m torch.distributed.launch --nproc_per_node=8 --use_env --master_port 29500 main.py --nas-config configs/deit_small_nxm_uniform14.yaml --epochs 50 --output_dir result_sub_1:4_50epoch
     # python -m torch.distributed.launch --nproc_per_node=8 --use_env --master_port 29501 main.py --nas-config configs/deit_small_nxm_uniform24.yaml --epochs 50 --output_dir result_sub_2:4_50epoch
-    # python -m torch.distributed.launch --nproc_per_node=8 --use_env --master_port 29501 main.py --nas-config configs/deit_small_nxm_nas_124+13.yaml --eval
+    # python -m torch.distributed.launch --nproc_per_node=8 --use_env --master_port 29501 main.py --nas-config configs/deit_small_nxm_uniform14.yaml --eval
+    # python -m torch.distributed.launch --nproc_per_node=8 --use_env main.py --epochs 150 --nas-config configs/deit_small_nxm_nas_124+13.yaml --output_dir twined_nas_124+13_150epoch
     parser.add_argument('--model', default='Sparse_deit_small_patch16_224', type=str, metavar='MODEL',
                         help='Name of model to train')
-    parser.add_argument('--nas-config', type=str, default=None, help='configuration for supernet training')
-    parser.add_argument('--nas-mode', action='store_true', default=True)
+    parser.add_argument('--nas-config', type=str, default='configs/deit_small_nxm_nas_124.yaml', help='configuration for supernet training')
+    parser.add_argument('--nas-mode', action='store_true', default=False)
     # parser.add_argument('--nas-weights', default='weights/nas_pretrained.pth', help='load pretrained supernet weight')
-    # parser.add_argument('--nas-weights', default='twined_nas_124+13_150epoch/best_checkpoint.pth', help='load pretrained supernet weight')
+    # parser.add_argument('--nas-weights', default='result_nas_1:4_150epoch/checkpoint.pth', help='load pretrained supernet weight')
+    # parser.add_argument('--nas-weights', default='result_sub_1:4_50epoch/best_checkpoint.pth', help='load pretrained supernet weight')
+    # parser.add_argument('--nas-weights', default='result_sub_2:4_50epoch/best_checkpoint.pth', help='load pretrained supernet weight')
+    # parser.add_argument('--nas-weights', default='result_nas_124+13_150epoch/checkpoint.pth', help='load pretrained supernet weight')
+    # parser.add_argument('--nas-weights', default='result_nas_124+13_150epoch/best_checkpoint.pth', help='load pretrained supernet weight')
+    # parser.add_argument('--nas-weights', default='result_1:8_100epoch/best_checkpoint.pth', help='load pretrained supernet weight')
     parser.add_argument('--nas-weights', default=None, help='load pretrained supernet weight')
-    parser.add_argument('--wandb', action='store_true', default=True)
+    parser.add_argument('--wandb', action='store_true')
     parser.add_argument('--output_dir', default='result',
                         help='path where to save, empty for no saving')
     return parser
@@ -295,12 +306,12 @@ def main(args):
     print(f"Creating model: {args.model}")
     model = create_model(
         args.model,
-        pretrained=True,
+        pretrained=False,
         num_classes=args.nb_classes,
         drop_rate=args.drop,
         drop_path_rate=args.drop_path,
         drop_block_rate=None,
-        img_size=args.input_size
+        img_size=args.input_size,
     )
 
     if args.finetune:
@@ -422,27 +433,37 @@ def main(args):
 
     teacher_model = None
     if args.distillation_type != 'none':
-        assert args.teacher_path, 'need to specify teacher-path when using distillation'
+        # assert args.teacher_path, 'need to specify teacher-path when using distillation'
         print(f"Creating teacher model: {args.teacher_model}")
-        teacher_model = create_model(
-            args.teacher_model,
-            pretrained=False,
-            num_classes=args.nb_classes,
-            global_pool='avg',
-        )
-        if args.teacher_path.startswith('https'):
-            checkpoint = torch.hub.load_state_dict_from_url(
+        # teacher_model = create_model( // regnety160
+        #     args.teacher_model,
+        #     pretrained=False,
+        #     num_classes=args.nb_classes,
+        #     global_pool='avg',
+        # )
+        teacher_model = create_model( # deit-small
+        args.teacher_model,
+        pretrained=True,
+        num_classes=args.nb_classes,
+        drop_rate=args.drop,
+        drop_path_rate=args.drop_path,
+        drop_block_rate=None,
+        img_size=args.input_size
+    )
+        if args.teacher_path:
+            if args.teacher_path.startswith('https'):
+                checkpoint = torch.hub.load_state_dict_from_url(
                 args.teacher_path, map_location='cpu', check_hash=True)
-        else:
-            checkpoint = torch.load(args.teacher_path, map_location='cpu')
-        teacher_model.load_state_dict(checkpoint['model'])
+            else:
+                checkpoint = torch.load(args.teacher_path, map_location='cpu')
+            teacher_model.load_state_dict(checkpoint['model'])
         teacher_model.to(device)
         teacher_model.eval()
 
     # wrap the criterion in our custom DistillationLoss, which
     # just dispatches to the original criterion if args.distillation_type is 'none'
     criterion = DistillationLoss(
-        criterion, teacher_model, args.distillation_type, args.distillation_alpha, args.distillation_tau
+        criterion, teacher_model, args.distillation_type, args.distillation_alpha, args.distillation_tau, args.distillation_gamma
     )
 
     output_dir = Path(args.output_dir)
@@ -463,7 +484,7 @@ def main(args):
                 loss_scaler.load_state_dict(checkpoint['scaler'])
         lr_scheduler.step(args.start_epoch)
     if args.eval:
-        test_stats = evaluate(nas_config, data_loader_val, model, device)
+        test_stats = evaluate(nas_config, data_loader_val, model, device, args)
         print(f"Accuracy of the network on the {len(dataset_val)} test images: {test_stats['acc1']:.1f}%")
         return
 
@@ -496,7 +517,7 @@ def main(args):
                 }, checkpoint_path)
 
 
-        test_stats = evaluate(nas_config, data_loader_val, model, device)
+        test_stats = evaluate(nas_config, data_loader_val, model, device, args)
 
         print(f"Accuracy of the network on the {len(dataset_val)} test images: {test_stats['acc1']:.1f}%")
 
@@ -542,3 +563,15 @@ if __name__ == '__main__':
     if args.output_dir:
         Path(args.output_dir).mkdir(parents=True, exist_ok=True)
     main(args)
+
+
+"""
+python -m torch.distributed.launch \
+--nproc_per_node=1 \
+--use_env \
+--master_port 29501 \
+main.py \
+--nas-config configs/deit_small_nxm_nas_124+13.yaml \
+--data-path /work/shadowpa0327/imagenet \
+--distillation-type soft_fd 
+"""
