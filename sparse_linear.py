@@ -22,9 +22,9 @@ class SparseLinearSuper(nn.Module):
         super().__init__()
         self.in_features = in_features
         self.out_features = out_features
-        self.weight = nn.Parameter(torch.ones(out_features, in_features))
+        self.weight = nn.Parameter(torch.ones(1, out_features, in_features))
         if bias:
-            self.bias = nn.Parameter(torch.ones(out_features))
+            self.bias = nn.Parameter(torch.ones(1, out_features))
         else:
             self.bias = None
         
@@ -51,7 +51,7 @@ class SparseLinearSuper(nn.Module):
         n, m = self.sparsity_config
         # Find the corresponding index
         if len(self.nas_config_list) == 1: # No separate
-            self.mask = compute_mask(self.weight, n, m)
+            self.mask = compute_mask(self.weight[0], n, m)
         else:
             for config in self.nas_config_list:
                 if [n, m] in config:
@@ -63,7 +63,7 @@ class SparseLinearSuper(nn.Module):
     
     def forward(self, x):
         weight = self.weight[self.sparsity_idx] * self.mask
-        # weight = self.weight
+
         if self.bias[self.sparsity_idx] is not None:
             x = F.linear(x, weight, self.bias[self.sparsity_idx])
         else:
