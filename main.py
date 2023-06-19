@@ -159,7 +159,7 @@ def get_args_parser():
     parser.add_argument('--attn-only', action='store_true')
 
     # Dataset parameters
-    parser.add_argument('--data-path', default='/dataset/imagenet', type=str, help='dataset path')
+    parser.add_argument('--data-path', default='/dev/shm/imagenet', type=str, help='dataset path')
     parser.add_argument('--data-set', default='IMNET', choices=['CIFAR', 'IMNET', 'INAT', 'INAT19'],
                         type=str, help='Image Net dataset path')
     parser.add_argument('--inat-category', default='name',
@@ -178,13 +178,11 @@ def get_args_parser():
     parser.add_argument('--num_workers', default=16, type=int)
     parser.add_argument('--pin-mem', action='store_true',
                         help='Pin CPU memory in DataLoader for more efficient (sometimes) transfer to GPU.')
-    parser.add_argument('--no-pin-mem', action='store_false', dest='pin_mem',
-                        help='')
+    parser.add_argument('--no-pin-mem', action='store_false', dest='pin_mem', help='')
     parser.set_defaults(pin_mem=True)
 
     # distributed training parameters
-    parser.add_argument('--world_size', default=1, type=int,
-                        help='number of distributed processes')
+    parser.add_argument('--world_size', default=1, type=int, help='number of distributed processes')
     parser.add_argument('--dist_url', default='env://', help='url used to set up distributed training')
 
     # Sparsity Training Related Flag
@@ -197,7 +195,8 @@ def get_args_parser():
     # python -m torch.distributed.launch --nproc_per_node=8 --use_env main.py --epochs 150 --nas-config configs/deit_small_nxm_nas_124+13.yaml --output_dir twined_nas_124+13_150epoch
     parser.add_argument('--model', default='Sparse_deit_small_patch16_224', type=str, metavar='MODEL',
                         help='Name of model to train')
-    parser.add_argument('--nas-config', type=str, default='configs/deit_small_nxm_nas_124.yaml', help='configuration for supernet training')
+    parser.add_argument('--pretrained', action='store_true', help='Use pretrained model')
+    parser.add_argument('--nas-config', type=str, default=None, help='configuration for supernet training')
     parser.add_argument('--nas-mode', action='store_true', default=False)
     # parser.add_argument('--nas-weights', default='weights/nas_pretrained.pth', help='load pretrained supernet weight')
     # parser.add_argument('--nas-weights', default='result_nas_1:4_150epoch/checkpoint.pth', help='load pretrained supernet weight')
@@ -306,7 +305,7 @@ def main(args):
     print(f"Creating model: {args.model}")
     model = create_model(
         args.model,
-        pretrained=False,
+        pretrained=args.pretrained,
         num_classes=args.nb_classes,
         drop_rate=args.drop,
         drop_path_rate=args.drop_path,
