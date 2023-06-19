@@ -295,6 +295,11 @@ class SparseVisionTransformer(nn.Module):
             return x
 
 
+    def set_seperate_config(self, seperate_configs): 
+        # using after loading pre-trained weights / before evaluating trained supernet for sparsity
+        for layer in filter(lambda x: isinstance(x, SparseLinearSuper), self.modules()):
+            layer.set_seperate_config(seperate_configs)
+
     def set_sample_config(self, sparse_configs):
         for ratio, layer in zip(sparse_configs, filter(lambda x: isinstance(x, SparseLinearSuper), self.modules())):
             layer.set_sample_config(ratio)

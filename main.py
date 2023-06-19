@@ -159,8 +159,7 @@ def get_args_parser():
     parser.add_argument('--attn-only', action='store_true')
 
     # Dataset parameters
-    parser.add_argument('--data-path', default='/dataset/imagenet', type=str,
-                        help='dataset path')
+    parser.add_argument('--data-path', default='/dataset/imagenet', type=str, help='dataset path')
     parser.add_argument('--data-set', default='IMNET', choices=['CIFAR', 'IMNET', 'INAT', 'INAT19'],
                         type=str, help='Image Net dataset path')
     parser.add_argument('--inat-category', default='name',
@@ -315,12 +314,6 @@ def main(args):
         img_size=args.input_size,
     )
 
-    # load nas pretrained weight
-    if args.nas_weights:
-        state_dict = torch.load(args.nas_weights)
-        model.load_state_dict(state_dict['model'], strict=True)
-        print(f'Load NAS pretrained weight from {args.nas_weights}')
-
     if args.finetune:
         if args.finetune.startswith('https'):
             checkpoint = torch.hub.load_state_dict_from_url(
@@ -394,19 +387,29 @@ def main(args):
 
     model_without_ddp = model
     if args.distributed:
-        model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
+        model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu], find_unused_parameters=True)
         model_without_ddp = model.module
 
     if args.nas_mode:
+        if 'seperate' in nas_config['sparsity']:
+            model_without_ddp.set_seperate_config(nas_config['sparsity']['seperate'])
+        
         smallest_config = []
         for ratios in nas_config['sparsity']['choices']:
             smallest_config.append(ratios[0])
         model_without_ddp.set_random_config_fn(gen_random_config_fn(nas_config))
         model_without_ddp.set_sample_config(smallest_config)    
         
+    # load nas pretrained weight
+    if args.nas_weights:
+        state_dict = torch.load(args.nas_weights)
+        model_without_ddp.load_state_dict(state_dict['model'], strict=True)
+        print(f'Load NAS pretrained weight from {args.nas_weights}')
+
 
     n_parameters = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print('number of params:', n_parameters)
+
     if not args.unscale_lr:
         linear_scaled_lr = args.lr * args.batch_size * utils.get_world_size() / 512.0
         args.lr = linear_scaled_lr
