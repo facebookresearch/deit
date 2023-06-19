@@ -155,8 +155,7 @@ def get_args_parser():
     parser.add_argument('--attn-only', action='store_true')
 
     # Dataset parameters
-    parser.add_argument('--data-path', default='/dev/shm/imagenet', type=str,
-                        help='dataset path')
+    parser.add_argument('--data-path', default='/dataset/imagenet', type=str, help='dataset path')
     parser.add_argument('--data-set', default='IMNET', choices=['CIFAR', 'IMNET', 'INAT', 'INAT19'],
                         type=str, help='Image Net dataset path')
     parser.add_argument('--inat-category', default='name',
@@ -195,8 +194,8 @@ def get_args_parser():
     parser.add_argument('--nas-config', type=str, default=None, help='configuration for supernet training')
     parser.add_argument('--nas-mode', action='store_true', default=True)
     # parser.add_argument('--nas-weights', default='weights/nas_pretrained.pth', help='load pretrained supernet weight')
-    parser.add_argument('--nas-weights', default='twined_nas_124+13_150epoch/best_checkpoint.pth', help='load pretrained supernet weight')
-    # parser.add_argument('--nas-weights', default=None, help='load pretrained supernet weight')
+    # parser.add_argument('--nas-weights', default='twined_nas_124+13_150epoch/best_checkpoint.pth', help='load pretrained supernet weight')
+    parser.add_argument('--nas-weights', default=None, help='load pretrained supernet weight')
     parser.add_argument('--wandb', action='store_true', default=True)
     parser.add_argument('--output_dir', default='result',
                         help='path where to save, empty for no saving')
@@ -381,8 +380,9 @@ def main(args):
         model_without_ddp = model.module
 
     if args.nas_mode:
-        model_without_ddp.set_nas_config(nas_config['sparsity']['choices'])
-        # model_without_ddp.set_nas_config([[[1, 4], [1, 3], [2, 4], [4, 4]]])
+        if 'seperate' in nas_config['sparsity']:
+            model_without_ddp.set_seperate_config(nas_config['sparsity']['seperate'])
+        
         smallest_config = []
         for ratios in nas_config['sparsity']['choices']:
             smallest_config.append(ratios[0])

@@ -6,7 +6,7 @@ def compute_mask(t, N, M):
     out_channel, in_channel = t.shape
     percentile = N / M
     t_reshaped = t.reshape(out_channel, -1, M)
-    #print(t_reshaped.shape)
+
     mask = torch.ones_like(t)
     mask_reshaped = mask.reshape(out_channel, -1, M)
     
@@ -22,7 +22,6 @@ class SparseLinearSuper(nn.Module):
         super().__init__()
         self.in_features = in_features
         self.out_features = out_features
-        self.nas_config_list = ['all']
         self.weight = nn.Parameter(torch.ones(out_features, in_features))
         if bias:
             self.bias = nn.Parameter(torch.ones(out_features))
@@ -31,41 +30,32 @@ class SparseLinearSuper(nn.Module):
         
         self.sparsity_idx = 0
         self.sparsity_config = (4, 4)
+        self.nas_config_list = ['no_separate']
         self.mask = torch.ones_like(self.weight)
         self.set_sample_config(self.sparsity_config)
 
-    def set_nas_config(self, nas_configs): # supernet training: used after loading pre-trained weights; ea: used before loading nas weights
-        m_list = []
-        for config in nas_configs:
-            n, m = config
-            if m not in m_list:
-                m_list.append(m)
-
-        if len(m_list) == 1:
-            self.nas_config_list = m_list
-        else:
-            self.nas_config_list.extend(m_list)
-            # repeat
+    def set_seperate_config(self, seperate_configs): 
+        # supernet training: used after loading pre-trained weights; ea: used before loading nas weights
+        if seperate_configs:
+            self.nas_config_list = seperate_configs
+            # Repeat
             self.weight = nn.Parameter(self.weight.repeat(len(self.nas_config_list), 1, 1))
             if self.bias != None:
                 self.bias = nn.Parameter(self.bias.repeat(len(self.nas_config_list), 1))
-            else:
-                self.bias = None
 
     def set_sample_config(self, sample_config):
         self.sparsity_config = sample_config
         self._set_mask()
         
     def _set_mask(self):
-        # Find the corresponding index
         n, m = self.sparsity_config
-        if len(self.nas_config_list) == 1:
+        # Find the corresponding index
+        if len(self.nas_config_list) == 1: # No separate
             self.mask = compute_mask(self.weight, n, m)
-        elif n == m:
-            self.sparsity_idx = 0
-            self.mask = torch.ones_like(self.weight[self.sparsity_idx])
         else:
-            self.sparsity_idx = self.nas_config_list.index(m)
+            for config in self.nas_config_list:
+                if [n, m] in config:
+                    self.sparsity_idx = self.nas_config_list.index(config)
             self.mask = compute_mask(self.weight[self.sparsity_idx], n, m)
 
     def __repr__(self):
@@ -92,7 +82,8 @@ if __name__ == '__main__':
     m = SparseLinearSuper(12, 12)
     input = torch.randn(12)
     print(m(input))
-    m.set_sample_config((1,4))
+    m.set_seperate_config(seperate_configs=[[[1, 4], [2, 4]], [[4, 4]]])
+    m.set_sample_config((1, 4))
     print(m(input))
     print(m.num_pruned_params())
     #print(sum(p.numel() for p in m.parameters() if p.requires_grad))
