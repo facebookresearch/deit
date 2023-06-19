@@ -87,15 +87,15 @@ default_cfgs = {
     'vit_base_resnet50d_224': _cfg(),
 }
 
-class MlpSuper(nn.Module):
+class LRMlpSuper(nn.Module):
     def __init__(self, in_features, hidden_features=None, out_features=None, act_layer=nn.GELU, drop=0.):
         super().__init__()
         out_features = out_features or in_features
         hidden_features = hidden_features or in_features
         self.act = act_layer()
         self.drop = nn.Dropout(drop)
-        self.fc1 = nn.Linear(in_features, hidden_features)
-        self.fc2 = nn.Linear(hidden_features, out_features)
+        self.fc1 = SparseLinearSuper(in_features, hidden_features)
+        self.fc2 = SparseLinearSuper(hidden_features, out_features)
 
     def forward(self, x):
         x = self.fc1(x)
@@ -105,15 +105,15 @@ class MlpSuper(nn.Module):
         x = self.drop(x)
         return x
 
-class AttentionSuper(nn.Module):
+class LRAttentionSuper(nn.Module):
     def __init__(self, dim, num_heads=8, qkv_bias=False, attn_drop=0., proj_drop=0.):
         super().__init__()
         self.num_heads = num_heads
         head_dim = dim // num_heads
         self.scale = head_dim ** -0.5
 
-        self.proj = nn.Linear(dim, dim)
-        self.qkv = nn.Linear(dim, dim * 3, bias = qkv_bias)
+        self.proj = SparseLinearSuper(dim, dim)
+        self.qkv = SparseLinearSuper(dim, dim * 3, bias = qkv_bias)
         self.attn_drop = nn.Dropout(attn_drop)
         self.proj_drop = nn.Dropout(proj_drop)
 
@@ -137,12 +137,12 @@ class Block(nn.Module):
                  drop_path=0., act_layer=nn.GELU, norm_layer=nn.LayerNorm):
         super().__init__()
         self.norm1 = norm_layer(dim)
-        self.attn = AttentionSuper(dim, num_heads=num_heads, qkv_bias=qkv_bias, attn_drop=attn_drop, proj_drop=drop, )
+        self.attn = LRAttentionSuper(dim, num_heads=num_heads, qkv_bias=qkv_bias, attn_drop=attn_drop, proj_drop=drop, )
         # NOTE: drop path for stochastic depth, we shall see if this is better than dropout here
         self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
         self.norm2 = norm_layer(dim)
         mlp_hidden_dim = int(dim * mlp_ratio)
-        self.mlp = MlpSuper(in_features=dim, hidden_features=mlp_hidden_dim, act_layer=act_layer, drop=drop)
+        self.mlp = LRMlpSuper(in_features=dim, hidden_features=mlp_hidden_dim, act_layer=act_layer, drop=drop)
 
     def forward(self, x):
         x = x + self.drop_path(self.attn(self.norm1(x)))
@@ -178,7 +178,7 @@ class PatchEmbed(nn.Module):
 
 
 
-class VisionTransformer(nn.Module):
+class SparseVisionTransformer(nn.Module):
     """ Vision Transformer
 
     A PyTorch impl of : `An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale`
@@ -189,7 +189,7 @@ class VisionTransformer(nn.Module):
     """
 
     def __init__(self, img_size=224, patch_size=16, in_chans=3, num_classes=1000, embed_dim=768, depth=12,
-                 num_heads=12, mlp_ratio=4., qkv_bias=True, representation_size=None,
+                 num_heads=12, mlp_ratio=4., qkv_bias=True, representation_size=None, distilled=False,
                  drop_rate=0., attn_drop_rate=0., drop_path_rate=0., embed_layer=PatchEmbed, norm_layer=None,
                  act_layer=None, weight_init=''):
         """
@@ -239,6 +239,7 @@ class VisionTransformer(nn.Module):
 
         # Classifier head(s)
         self.head = nn.Linear(self.num_features, num_classes) if num_classes > 0 else nn.Identity()
+
         trunc_normal_(self.pos_embed, std=.02)
         trunc_normal_(self.cls_token, std=.02)
         self.apply(self._init_weights)
@@ -261,6 +262,7 @@ class VisionTransformer(nn.Module):
     def get_classifier(self):
         return self.head
 
+
     def reset_classifier(self, num_classes, global_pool=''):
         self.num_classes = num_classes
         self.head = nn.Linear(self.embed_dim, num_classes) if num_classes > 0 else nn.Identity()
@@ -272,15 +274,15 @@ class VisionTransformer(nn.Module):
         x = torch.cat((cls_token, x), dim=1)
         x = self.pos_drop(x + self.pos_embed)
         for b in self.blocks:
-            x = b(x)
             if return_intermediate:
                 intermediate_outputs.append(x)
+            x = b(x)
         x = self.norm(x)
-
         if return_intermediate:
             return self.pre_logits(x[:, 0]), intermediate_outputs
         else:
             return self.pre_logits(x[:, 0])
+
 
     def forward(self, x, return_intermediate = False):
         if return_intermediate:
@@ -293,13 +295,37 @@ class VisionTransformer(nn.Module):
             return x
 
 
+    def set_seperate_config(self, seperate_configs): 
+        # using after loading pre-trained weights / before evaluating trained supernet for sparsity
+        for layer in filter(lambda x: isinstance(x, SparseLinearSuper), self.modules()):
+            layer.set_seperate_config(seperate_configs)
+
+    def set_sample_config(self, sparse_configs):
+        for ratio, layer in zip(sparse_configs, filter(lambda x: isinstance(x, SparseLinearSuper), self.modules())):
+            layer.set_sample_config(ratio)
+
+    def set_random_config_fn(self, fn):
+        self.random_config_fn = fn
+
+    def set_random_sample_config(self):
+        self.set_sample_config(self.random_config_fn())
+
+    def num_params(self):
+        pruned_params= 0
+        for layer in filter(lambda x: isinstance(x, SparseLinearSuper), self.modules()):
+            pruned_params += layer.num_pruned_params()
+        return sum(p.numel() for p in self.parameters() if p.requires_grad) - pruned_params
+
+
+
+
 
 @register_model
-def deit_base_patch16_224(pretrained=False, **kwargs):
+def Sparse_deit_base_patch16_224(pretrained=False, **kwargs):
     """ DeiT base model @ 224x224 from paper (https://arxiv.org/abs/2012.12877).
     ImageNet-1k weights from https://github.com/facebookresearch/deit.
     """
-    model =  VisionTransformer(
+    model =  SparseVisionTransformer(
         patch_size=16, embed_dim=768, depth=12, num_heads=12, mlp_ratio=4, qkv_bias=True,
         norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     model.default_cfg = _cfg()
@@ -314,11 +340,11 @@ def deit_base_patch16_224(pretrained=False, **kwargs):
 
 
 @register_model
-def deit_small_patch16_224(pretrained=False, **kwargs):
+def Sparse_deit_small_patch16_224(pretrained=False, **kwargs):
     """ DeiT base model @ 224x224 from paper (https://arxiv.org/abs/2012.12877).
     ImageNet-1k weights from https://github.com/facebookresearch/deit.
     """
-    model =  VisionTransformer(
+    model =  SparseVisionTransformer(
         patch_size=16, embed_dim=384, depth=12, num_heads=6, mlp_ratio=4, qkv_bias=True,
         norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     model.default_cfg = _cfg()
@@ -332,11 +358,11 @@ def deit_small_patch16_224(pretrained=False, **kwargs):
 
 
 @register_model
-def deit_tiny_patch16_224(pretrained=False, **kwargs):
+def Sparse_deit_tiny_patch16_224(pretrained=False, **kwargs):
     """ DeiT base model @ 224x224 from paper (https://arxiv.org/abs/2012.12877).
     ImageNet-1k weights from https://github.com/facebookresearch/deit.
     """
-    model =  VisionTransformer(
+    model =  SparseVisionTransformer(
         patch_size=16, embed_dim=192, depth=12, num_heads=3, mlp_ratio=4, qkv_bias=True,
         norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     model.default_cfg = _cfg()
