@@ -9,8 +9,10 @@ Here, I have build an interface and add some naive methods for add sparsity into
     - training
         ```
         python -m torch.distributed.launch --master_port 29510 --nproc_per_node=2 --use_env main.py \
+        --model Sparse_deit_small_patch16_224 \
         --data-path /dataset/imagenet \
         --epochs 150 \
+        --batch-size 128 \
         --pretrained \
         --lr 5e-5 \ 
         --min-lr 1e-6 \
@@ -23,6 +25,7 @@ Here, I have build an interface and add some naive methods for add sparsity into
     - eval 
         ```
         python -m torch.distributed.launch --master_port 29510 --nproc_per_node=2 --use_env main.py \
+        --model Sparse_deit_small_patch16_224
         --data-path /dataset/imagenet \
         --nas-mode \
         --nas-config configs/deit_small_nxm_uniform24.yaml \
@@ -34,8 +37,10 @@ Here, I have build an interface and add some naive methods for add sparsity into
     - training
         ```
         python -m torch.distributed.launch --master_port 29510 --nproc_per_node=2 --use_env main.py \
+        --model Sparse_deit_small_patch16_224 \
         --data-path /dataset/imagenet \
         --epochs 150 \
+        --batch-size 128 \
         --pretrained \\
         --lr 5e-5 \ 
         --min-lr 1e-6 \
@@ -51,6 +56,7 @@ Here, I have build an interface and add some naive methods for add sparsity into
     - eval 
         ```
         python -m torch.distributed.launch --master_port 29510 --nproc_per_node=2 --use_env main.py \
+        --model Sparse_deit_small_patch16_224
         --data-path /dataset/imagenet \
         --nas-mode \
         --nas-config configs/deit_small_nxm_uniform24.yaml \
