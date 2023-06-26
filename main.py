@@ -224,7 +224,7 @@ def main(args):
 
     # wandb
     if args.wandb and utils.is_main_process():
-        wandb.init(project='sparsity', entity='410011max', name=args.nas_config)
+        wandb.init(project='sparsity', entity='410011max', name=args.output_dir)
 
     print(args)
 
