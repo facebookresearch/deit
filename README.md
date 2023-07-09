@@ -67,17 +67,19 @@ Here, I have build an interface and add some naive methods for add sparsity into
 - Cifar-100 command
     - training
         ```
-        python main.py \
+        python -m torch.distributed.launch --nporc_per_node=8 --use_env main.py \
             --model deit_small_patch16_224 \
-            --batch-size 256 \
+            --batch-size 128 \
             --finetune https://dl.fbaipublicfiles.com/deit/deit_small_patch16_224-cd65a155.pth \
             --data-set CIFAR \
-            --data-path /dataset/cifar100 \
-            --opt sgd \
-            --weight-decay 1e-4 \
-            --lr 1e-2 \
-            --output_dir deit_s_224_cifar_100 \
-            --epochs 500
+            --data-path /dev/shm/cifar100 \
+            --opt adamw \
+            --weight-decay 0.01 \
+            --lr 5e-6 \
+            --min-lr 1e-7 \
+            --drop-path 0.05 \
+            --output_dir deit_s_224_cifar_100_0629 \
+            --epochs 1000
         ```
 
 ## Support Sparsity Searching Algorithm

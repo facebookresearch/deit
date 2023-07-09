@@ -293,9 +293,14 @@ def main(args):
             mixup_alpha=args.mixup, cutmix_alpha=args.cutmix, cutmix_minmax=args.cutmix_minmax,
             prob=args.mixup_prob, switch_prob=args.mixup_switch_prob, mode=args.mixup_mode,
             label_smoothing=args.smoothing, num_classes=args.nb_classes)
-    
-    with open(args.nas_config) as f:
-        nas_config = yaml.load(f, Loader=SafeLoader)  
+    if args.nas_mode:
+        if args.nas_config:
+            with open(args.nas_config) as f:
+                nas_config = yaml.load(f, Loader=SafeLoader) 
+        else:
+            raise ValueError("Please provide the nas config when you are running in nas mode")
+    else:
+        nas_config = None
     
     print(f"Creating model: {args.model}")
     model = create_model(
