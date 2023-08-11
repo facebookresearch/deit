@@ -48,6 +48,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: DistillationLoss,
             if not args.cosub:
                 loss = criterion(samples, outputs, targets)
             else:
+                outputs = torch.split(outputs, outputs.shape[0]//2, dim=0)
                 loss = 0.25 * criterion(outputs[0], targets) 
                 loss = loss + 0.25 * criterion(outputs[1], targets) 
                 loss = loss + 0.25 * criterion(outputs[0], outputs[1].detach().sigmoid())
