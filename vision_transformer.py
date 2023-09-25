@@ -157,9 +157,6 @@ class CompVisionTransformer(nn.Module):
             ]
         else:
             output = x[:, 0, :]
-        print('!!!')
-        print(output)
-        output = self.pre_logits(output)
         return output
 
     def _init_weights(self, m):
@@ -201,5 +198,6 @@ class CompVisionTransformer(nn.Module):
     def forward(self, sample):
         x, K, M = sample
         x = self.comp_forward_afterK(x, ['lastCLS'], K, M)
+        x = self.pre_logits(x[0])
         x = self.head(x)
         return x
