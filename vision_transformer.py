@@ -157,6 +157,8 @@ class CompVisionTransformer(nn.Module):
             ]
         else:
             output = x[:, 0, :]
+        print('!!!')
+        print(output)
         output = self.pre_logits(output)
         return output
 
