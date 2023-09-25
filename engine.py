@@ -18,7 +18,7 @@ import utils
 
 
 def train_one_epoch(model: torch.nn.Module, criterion: DistillationLoss,
-                    data_loader: Iterable, optimizer: torch.optim.Optimizer, maxK: int,
+                    data_loader: Iterable, optimizer: torch.optim.Optimizer,
                     device: torch.device, epoch: int, loss_scaler, max_norm: float = 0,
                     model_ema: Optional[ModelEma] = None, mixup_fn: Optional[Mixup] = None,
                     set_training_mode=True, args = None):
