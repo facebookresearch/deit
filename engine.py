@@ -5,6 +5,7 @@ Train and eval functions used in main.py
 """
 import math
 import sys
+import random
 from typing import Iterable, Optional
 
 import torch
@@ -17,7 +18,7 @@ import utils
 
 
 def train_one_epoch(model: torch.nn.Module, criterion: DistillationLoss,
-                    data_loader: Iterable, optimizer: torch.optim.Optimizer,
+                    data_loader: Iterable, optimizer: torch.optim.Optimizer, maxK: int,
                     device: torch.device, epoch: int, loss_scaler, max_norm: float = 0,
                     model_ema: Optional[ModelEma] = None, mixup_fn: Optional[Mixup] = None,
                     set_training_mode=True, args = None):
@@ -44,7 +45,9 @@ def train_one_epoch(model: torch.nn.Module, criterion: DistillationLoss,
             targets = targets.gt(0.0).type(targets.dtype)
          
         with torch.cuda.amp.autocast():
-            outputs = model(samples)
+            K = random.randint(0, 12)
+            M = random.choice([2, 3, 4, 6, 8, 9, 12, 16])
+            outputs = model((samples, K, M))
             if not args.cosub:
                 loss = criterion(samples, outputs, targets)
             else:
@@ -95,7 +98,7 @@ def evaluate(data_loader, model, device):
 
         # compute output
         with torch.cuda.amp.autocast():
-            output = model(images)
+            output = model((images, 0, 2))
             loss = criterion(output, target)
 
         acc1, acc5 = accuracy(output, target, topk=(1, 5))
