@@ -35,7 +35,7 @@ class DistilledVisionTransformer(CompVisionTransformer):
     def forward(self, sample):
         x, K, M = sample
         x = self.comp_forward_afterK(x, ['lastBLK'], K, M)
-        x, x_dist = x[:, 0], x[:, 1]
+        x, x_dist = x[0][:, 0], x[0][:, 1]
         x = self.head(x)
         x_dist = self.head_dist(x_dist)
         if self.training:
