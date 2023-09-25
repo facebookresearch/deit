@@ -85,7 +85,7 @@ class CompVisionTransformer(nn.Module):
     def split_input(self, x, M):
         precomputed_masks = DIVISION_MASKS_14_14[M]
 
-        mask_id = random.randint(0, len(self.precomputed_masks) - 1)
+        mask_id = random.randint(0, len(precomputed_masks) - 1)
         masks = precomputed_masks[mask_id]
         masks = [torch.tensor(mask).unsqueeze(0) for mask in masks]
 
